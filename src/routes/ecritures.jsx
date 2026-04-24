@@ -1,29 +1,67 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { createFileRoute } from "@tanstack/react-router";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
 import { DataTable } from "@/components/dashboard/DataTable";
-import { ArrowDownLeft, ArrowUpRight, Activity, FileText, AlertCircle } from "lucide-react";
+import { FileText, Receipt, AlertCircle, CheckCircle } from "lucide-react";
 import {
   BarChart,
   Bar,
   LineChart,
   Line,
-  PieChart,
-  Pie,
-  Cell,
+  ScatterChart,
+  Scatter,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
   ResponsiveContainer,
+  ReferenceLine,
 } from "recharts";
-import { ecritures, MONTHS, CHART_COLORS, formatTND } from "@/data/mockData";
+import { ecritures, MONTHS, formatTND } from "@/data/mockData";
+
 export const Route = createFileRoute("/ecritures")({
   component: EcrituresPage,
 });
+
+// Top 10 journaux grouped Débit/Crédit (KPI-25/27)
+const journaux = ["Ventes", "Achats", "Banque", "Caisse", "OD", "Salaires", "TVA", "Immob.", "Clients", "Fournisseurs"];
+const journalData = journaux.map((j) => ({
+  journal: j,
+  debit: Math.round(100000 + Math.random() * 500000),
+  credit: Math.round(100000 + Math.random() * 500000),
+}));
+
+// TVA dual-line (KPI-26)
+const tvaData = MONTHS.map((m) => ({
+  month: m,
+  collectee: Math.round(120000 + Math.random() * 80000),
+  deductible: Math.round(30000 + Math.random() * 40000),
+  soldeNet: 0,
+}));
+tvaData.forEach((d) => { d.soldeNet = d.collectee - d.deductible; });
+
+// Anomaly scatter (KPI-28) — Isolation Forest scores
+const anomalyData = Array.from({ length: 80 }, (_, i) => {
+  const date = `2024-${String(Math.ceil(Math.random() * 12)).padStart(2, "0")}-${String(Math.ceil(Math.random() * 28)).padStart(2, "0")}`;
+  const score = Math.random();
+  return {
+    date,
+    score: parseFloat(score.toFixed(3)),
+    montant: Math.round(10000 + Math.random() * 200000),
+    journal: ["Ventes", "Achats", "Banque", "OD"][Math.floor(Math.random() * 4)],
+    anomalie: score > 0.8,
+  };
+});
+
+// Waterfall mensuel débit/crédit (KPI-25)
+const waterfallData = MONTHS.map((m) => {
+  const debit = Math.round(200000 + Math.random() * 400000);
+  const credit = Math.round(200000 + Math.random() * 400000);
+  return { month: m, debit, credit, ecart: debit - credit };
+});
+
 const columns = [
   { accessorKey: "date", header: "Date" },
   { accessorKey: "numPiece", header: "N° Pièce" },
@@ -37,186 +75,113 @@ const columns = [
     header: "Solde",
     cell: ({ getValue }) => {
       const v = getValue();
-      return _jsx("span", {
-        className: v >= 0 ? "text-trend-up" : "text-trend-down",
-        children: formatTND(v),
-      });
+      return <span className={v >= 0 ? "text-trend-up" : "text-trend-down"}>{formatTND(v)}</span>;
     },
   },
 ];
-const totalDebit = ecritures.reduce((s, e) => s + e.debit, 0);
-const totalCredit = ecritures.reduce((s, e) => s + e.credit, 0);
-const journalData = ["Ventes", "Achats", "Banque", "Caisse"].map((j) => ({
-  name: j,
-  value: ecritures.filter((e) => e.journal === j).length,
-}));
-const debitCreditByMonth = MONTHS.map((m) => ({
-  month: m,
-  debit: Math.round(100000 + Math.random() * 200000),
-  credit: Math.round(100000 + Math.random() * 200000),
-}));
-let cumul = 0;
-const soldeCumule = debitCreditByMonth.map((d) => {
-  cumul += d.debit - d.credit;
-  return { month: d.month, solde: cumul };
-});
+
+// Custom dot for anomaly scatter
+function AnomalyDot(props) {
+  const { cx, cy, payload } = props;
+  if (payload.anomalie) {
+    return <circle cx={cx} cy={cy} r={6} fill="#ef4444" stroke="#ff000044" strokeWidth={3} opacity={0.9} />;
+  }
+  return <circle cx={cx} cy={cy} r={3} fill="#3b82f6" opacity={0.4} />;
+}
+
 function EcrituresPage() {
-  return _jsxs("div", {
-    className: "space-y-6",
-    children: [
-      _jsxs("div", {
-        className: "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 pt-12",
-        children: [
-          _jsx(KPICard, {
-            label: "Total D\u00E9bit",
-            value: formatTND(totalDebit),
-            icon: ArrowDownLeft,
-          }),
-          _jsx(KPICard, {
-            label: "Total Cr\u00E9dit",
-            value: formatTND(totalCredit),
-            icon: ArrowUpRight,
-          }),
-          _jsx(KPICard, {
-            label: "Solde Net",
-            value: formatTND(totalDebit - totalCredit),
-            icon: Activity,
-          }),
-          _jsx(KPICard, {
-            label: "Nb \u00C9critures",
-            value: ecritures.length.toString(),
-            icon: FileText,
-          }),
-          _jsx(KPICard, { label: "Taux Erreur", value: "0.8%", trend: -0.3, icon: AlertCircle }),
-        ],
-      }),
-      _jsxs("div", {
-        className: "grid grid-cols-1 md:grid-cols-2 gap-4",
-        children: [
-          _jsx(ChartCard, {
-            title: "D\u00E9bit vs Cr\u00E9dit par mois",
-            children: _jsx(ResponsiveContainer, {
-              width: "100%",
-              height: 280,
-              children: _jsxs(BarChart, {
-                data: debitCreditByMonth,
-                children: [
-                  _jsx(CartesianGrid, { stroke: "#2a2a2a", strokeDasharray: "3 3" }),
-                  _jsx(XAxis, {
-                    dataKey: "month",
-                    tick: { fill: "#666", fontSize: 11 },
-                    axisLine: false,
-                  }),
-                  _jsx(YAxis, { tick: { fill: "#666", fontSize: 11 }, axisLine: false }),
-                  _jsx(Tooltip, { content: _jsx(CustomTooltip, {}) }),
-                  _jsx(Legend, { wrapperStyle: { fontSize: 12, color: "#888" } }),
-                  _jsx(Bar, {
-                    dataKey: "debit",
-                    fill: "#3b82f6",
-                    name: "D\u00E9bit",
-                    radius: [4, 4, 0, 0],
-                  }),
-                  _jsx(Bar, {
-                    dataKey: "credit",
-                    fill: "#6366f1",
-                    name: "Cr\u00E9dit",
-                    radius: [4, 4, 0, 0],
-                  }),
-                ],
-              }),
-            }),
-          }),
-          _jsx(ChartCard, {
-            title: "\u00C9volution solde cumul\u00E9",
-            children: _jsx(ResponsiveContainer, {
-              width: "100%",
-              height: 280,
-              children: _jsxs(LineChart, {
-                data: soldeCumule,
-                children: [
-                  _jsx(CartesianGrid, { stroke: "#2a2a2a", strokeDasharray: "3 3" }),
-                  _jsx(XAxis, {
-                    dataKey: "month",
-                    tick: { fill: "#666", fontSize: 11 },
-                    axisLine: false,
-                  }),
-                  _jsx(YAxis, { tick: { fill: "#666", fontSize: 11 }, axisLine: false }),
-                  _jsx(Tooltip, { content: _jsx(CustomTooltip, {}) }),
-                  _jsx(Line, {
-                    type: "monotone",
-                    dataKey: "solde",
-                    stroke: "#3b82f6",
-                    strokeWidth: 2,
-                    dot: false,
-                    name: "Solde",
-                  }),
-                ],
-              }),
-            }),
-          }),
-          _jsx(ChartCard, {
-            title: "R\u00E9partition par journal",
-            children: _jsx(ResponsiveContainer, {
-              width: "100%",
-              height: 280,
-              children: _jsxs(PieChart, {
-                children: [
-                  _jsx(Pie, {
-                    data: journalData,
-                    dataKey: "value",
-                    nameKey: "name",
-                    cx: "50%",
-                    cy: "50%",
-                    outerRadius: 100,
-                    label: ({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`,
-                    fontSize: 11,
-                    children: journalData.map((_, i) => _jsx(Cell, { fill: CHART_COLORS[i] }, i)),
-                  }),
-                  _jsx(Tooltip, { content: _jsx(CustomTooltip, {}) }),
-                ],
-              }),
-            }),
-          }),
-          _jsx(ChartCard, {
-            title: "Top comptes par montant",
-            children: _jsx(ResponsiveContainer, {
-              width: "100%",
-              height: 280,
-              children: _jsxs(BarChart, {
-                data: ecritures.slice(0, 10),
-                layout: "vertical",
-                children: [
-                  _jsx(CartesianGrid, {
-                    stroke: "#2a2a2a",
-                    strokeDasharray: "3 3",
-                    horizontal: false,
-                  }),
-                  _jsx(XAxis, {
-                    type: "number",
-                    tick: { fill: "#666", fontSize: 11 },
-                    axisLine: false,
-                  }),
-                  _jsx(YAxis, {
-                    type: "category",
-                    dataKey: "compte",
-                    tick: { fill: "#666", fontSize: 11 },
-                    axisLine: false,
-                    width: 70,
-                  }),
-                  _jsx(Tooltip, { content: _jsx(CustomTooltip, {}) }),
-                  _jsx(Bar, {
-                    dataKey: "debit",
-                    fill: "#3b82f6",
-                    name: "Montant",
-                    radius: [0, 4, 4, 0],
-                  }),
-                ],
-              }),
-            }),
-          }),
-        ],
-      }),
-      _jsx(DataTable, { data: ecritures, columns: columns }),
-    ],
-  });
+  const nbAnomalies = anomalyData.filter((d) => d.anomalie).length;
+
+  return (
+    <div className="space-y-6">
+      {/* KPI Cards — draft D5 */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <KPICard label="Écritures comptables" value="663 138" subtitle="32 journaux — 5 exercices" icon={FileText} />
+        <KPICard label="TVA collectée YTD" value="1.8 MDT" subtitle="vs 0.4 MDT déductible" icon={Receipt} />
+        <KPICard label="Anomalies détectées" value={String(nbAnomalies)} subtitle="Isolation Forest — mois" trend={-2} icon={AlertCircle} />
+        <KPICard label="Équilibre débit/crédit" value="98.4%" subtitle="écarts < 0.01 DT" icon={CheckCircle} />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Widget A: Grouped bar Débit vs Crédit top 10 journaux (KPI-25/27) */}
+        <ChartCard title="Soldes par journal — Débit vs Crédit (KPI-25/27)">
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={journalData}>
+              <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
+              <XAxis dataKey="journal" tick={{ fill: "#666", fontSize: 10 }} axisLine={false} angle={-20} textAnchor="end" height={40} />
+              <YAxis tick={{ fill: "#666", fontSize: 11 }} axisLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`} />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend wrapperStyle={{ fontSize: 12, color: "#888" }} />
+              <Bar dataKey="debit" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Débit" />
+              <Bar dataKey="credit" fill="#6366f1" radius={[4, 4, 0, 0]} name="Crédit" />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+
+        {/* Widget B: TVA dual-line (KPI-26) */}
+        <ChartCard title="TVA collectée vs déductible (KPI-26)">
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={tvaData}>
+              <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
+              <XAxis dataKey="month" tick={{ fill: "#666", fontSize: 11 }} axisLine={false} />
+              <YAxis yAxisId="left" tick={{ fill: "#666", fontSize: 11 }} axisLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`} />
+              <YAxis yAxisId="right" orientation="right" tick={{ fill: "#22c55e", fontSize: 11 }} axisLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`} />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend wrapperStyle={{ fontSize: 12, color: "#888" }} />
+              <Bar yAxisId="left" dataKey="soldeNet" fill="#22c55e" opacity={0.4} radius={[4, 4, 0, 0]} name="Solde net TVA" />
+              <Line yAxisId="left" type="monotone" data={tvaData} dataKey="collectee" stroke="#3b82f6" strokeWidth={2} dot={false} name="TVA collectée" />
+              <Line yAxisId="left" type="monotone" data={tvaData} dataKey="deductible" stroke="#ef4444" strokeWidth={2} dot={false} name="TVA déductible" />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+
+        {/* Widget C: Anomaly scatter (KPI-28) */}
+        <ChartCard title="Détection anomalies comptables — Isolation Forest (KPI-28)">
+          <ResponsiveContainer width="100%" height={280}>
+            <ScatterChart margin={{ top: 10, right: 10, bottom: 20, left: 10 }}>
+              <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
+              <XAxis dataKey="date" name="Date" tick={{ fill: "#666", fontSize: 9 }} axisLine={false} angle={-30} textAnchor="end" height={40} />
+              <YAxis dataKey="score" name="Score anomalie" tick={{ fill: "#666", fontSize: 11 }} axisLine={false} domain={[0, 1]} label={{ value: "Score (0-1)", angle: -90, position: "insideLeft", fill: "#555", fontSize: 10 }} />
+              <ZAxis dataKey="montant" range={[30, 300]} name="Montant" />
+              <Tooltip content={<CustomTooltip />} />
+              <ReferenceLine y={0.8} stroke="#ef4444" strokeDasharray="4 4" label={{ value: "Seuil 0.8", fill: "#ef4444", fontSize: 10, position: "right" }} />
+              <Scatter data={anomalyData} shape={<AnomalyDot />} name="Écriture" />
+            </ScatterChart>
+          </ResponsiveContainer>
+          <p className="text-[10px] text-text-dim mt-1 text-right">
+            <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 inline-block" /> {nbAnomalies} anomalies (score &gt; 0.8)</span>
+          </p>
+        </ChartCard>
+
+        {/* Widget D: Waterfall mensuel débit/crédit (KPI-25) */}
+        <ChartCard title="Équilibre comptable mensuel — Waterfall (KPI-25)">
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={waterfallData}>
+              <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
+              <XAxis dataKey="month" tick={{ fill: "#666", fontSize: 11 }} axisLine={false} />
+              <YAxis tick={{ fill: "#666", fontSize: 11 }} axisLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`} />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend wrapperStyle={{ fontSize: 12, color: "#888" }} />
+              <ReferenceLine y={0} stroke="#555" />
+              <Bar dataKey="debit" fill="#3b82f6" name="Débit" radius={[4, 4, 0, 0]} opacity={0.8} />
+              <Bar dataKey="credit" fill="#6366f1" name="Crédit" radius={[4, 4, 0, 0]} opacity={0.8} />
+              <Bar
+                dataKey="ecart"
+                name="Écart D-C"
+                radius={[4, 4, 0, 0]}
+                fill="#22c55e"
+                label={false}
+              >
+                {waterfallData.map((d, i) => (
+                  <rect key={i} fill={d.ecart >= 0 ? "#22c55e" : "#ef4444"} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      </div>
+
+      <DataTable data={ecritures} columns={columns} />
+    </div>
+  );
 }

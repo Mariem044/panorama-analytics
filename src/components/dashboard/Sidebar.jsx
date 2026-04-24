@@ -16,8 +16,8 @@ import {
 
 const navItems = [
   { to: "/", label: "Tableau de Bord", icon: LayoutDashboard },
-  { to: "/ventes", label: " CA & Performance Commerciale", icon: TrendingUp },
-  { to: "/tresorerie", label: " Trésorerie & Flux Paiement", icon: Wallet },
+  { to: "/ventes", label: "CA & Performance Commerciale", icon: TrendingUp },
+  { to: "/tresorerie", label: "Trésorerie & Flux Paiement", icon: Wallet },
   { to: "/produits", label: "Stocks & Approvisionnement", icon: Boxes },
   { to: "/acteurs", label: "Analyse Acteurs & Segmentation", icon: Users },
   { to: "/ecritures", label: "Fiscalité & Comptabilité", icon: Receipt },
@@ -103,17 +103,25 @@ export function Sidebar() {
           <Link
             to="/parametres"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] text-text-muted hover:bg-surface-hover hover:text-foreground w-full transition-colors border border-transparent"
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] w-full transition-colors border cursor-pointer
+              ${path === "/parametres"
+                ? "bg-primary/10 text-primary border-primary/20"
+                : "text-text-muted hover:bg-surface-hover hover:text-foreground border-transparent"
+              }`}
           >
-            <Settings size={16} className="text-text-dim flex-shrink-0" />
+            <Settings size={16} className={path === "/parametres" ? "text-primary flex-shrink-0" : "text-text-dim flex-shrink-0"} />
             Paramètres
           </Link>
           <Link
             to="/aide"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] text-text-muted hover:bg-surface-hover hover:text-foreground w-full transition-colors border border-transparent"
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] w-full transition-colors border cursor-pointer
+              ${path === "/aide"
+                ? "bg-primary/10 text-primary border-primary/20"
+                : "text-text-muted hover:bg-surface-hover hover:text-foreground border-transparent"
+              }`}
           >
-            <HelpCircle size={16} className="text-text-dim flex-shrink-0" />
+            <HelpCircle size={16} className={path === "/aide" ? "text-primary flex-shrink-0" : "text-text-dim flex-shrink-0"} />
             Aide
           </Link>
           <p className="text-[10px] text-[#444] px-3 pt-1">v2.0.0 — FinMAG</p>

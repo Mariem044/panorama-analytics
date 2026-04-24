@@ -52,7 +52,7 @@ export function FiltersBar() {
   const extraFilters = DOMAIN_EXTRA[path] || [];
 
   return (
-    <div className="flex flex-wrap items-center gap-2 px-1 py-2 mb-4 border border-border/40 rounded-xl bg-background/40 backdrop-blur-sm">
+    <div className="flex flex-wrap items-center gap-2 px-1 py-2 mb-4 border border-border/40 rounded-xl bg-background/40 backdrop-blur-sm sticky top-16 z-20">
       <div className="flex items-center gap-1.5 text-text-dim pr-2 border-r border-border/60">
         <Filter size={13} />
         <span className="text-[10px] font-semibold uppercase tracking-wider">Filtres</span>

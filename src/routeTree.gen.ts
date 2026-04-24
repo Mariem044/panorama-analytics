@@ -11,16 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VentesRouteImport } from './routes/ventes'
 import { Route as TresorerieRouteImport } from './routes/tresorerie'
-import { Route as RegionsRouteImport } from './routes/regions'
-import { Route as RecouvrementRouteImport } from './routes/recouvrement'
 import { Route as ProduitsRouteImport } from './routes/produits'
 import { Route as ParametresRouteImport } from './routes/parametres'
-import { Route as ImpayesRouteImport } from './routes/impayes'
 import { Route as EcrituresRouteImport } from './routes/ecritures'
-import { Route as CommerciauxRouteImport } from './routes/commerciaux'
-import { Route as ClientsRouteImport } from './routes/clients'
+import { Route as CaisseRouteImport } from './routes/caisse'
+import { Route as BanqueRouteImport } from './routes/banque'
 import { Route as AideRouteImport } from './routes/aide'
-import { Route as AchatsRouteImport } from './routes/achats'
+import { Route as ActeursRouteImport } from './routes/acteurs'
 import { Route as IndexRouteImport } from './routes/index'
 
 const VentesRoute = VentesRouteImport.update({
@@ -33,16 +30,6 @@ const TresorerieRoute = TresorerieRouteImport.update({
   path: '/tresorerie',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RegionsRoute = RegionsRouteImport.update({
-  id: '/regions',
-  path: '/regions',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RecouvrementRoute = RecouvrementRouteImport.update({
-  id: '/recouvrement',
-  path: '/recouvrement',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ProduitsRoute = ProduitsRouteImport.update({
   id: '/produits',
   path: '/produits',
@@ -53,24 +40,19 @@ const ParametresRoute = ParametresRouteImport.update({
   path: '/parametres',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ImpayesRoute = ImpayesRouteImport.update({
-  id: '/impayes',
-  path: '/impayes',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const EcrituresRoute = EcrituresRouteImport.update({
   id: '/ecritures',
   path: '/ecritures',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CommerciauxRoute = CommerciauxRouteImport.update({
-  id: '/commerciaux',
-  path: '/commerciaux',
+const CaisseRoute = CaisseRouteImport.update({
+  id: '/caisse',
+  path: '/caisse',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ClientsRoute = ClientsRouteImport.update({
-  id: '/clients',
-  path: '/clients',
+const BanqueRoute = BanqueRouteImport.update({
+  id: '/banque',
+  path: '/banque',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AideRoute = AideRouteImport.update({
@@ -78,9 +60,9 @@ const AideRoute = AideRouteImport.update({
   path: '/aide',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AchatsRoute = AchatsRouteImport.update({
-  id: '/achats',
-  path: '/achats',
+const ActeursRoute = ActeursRouteImport.update({
+  id: '/acteurs',
+  path: '/acteurs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -91,47 +73,38 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/achats': typeof AchatsRoute
+  '/acteurs': typeof ActeursRoute
   '/aide': typeof AideRoute
-  '/clients': typeof ClientsRoute
-  '/commerciaux': typeof CommerciauxRoute
+  '/banque': typeof BanqueRoute
+  '/caisse': typeof CaisseRoute
   '/ecritures': typeof EcrituresRoute
-  '/impayes': typeof ImpayesRoute
   '/parametres': typeof ParametresRoute
   '/produits': typeof ProduitsRoute
-  '/recouvrement': typeof RecouvrementRoute
-  '/regions': typeof RegionsRoute
   '/tresorerie': typeof TresorerieRoute
   '/ventes': typeof VentesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/achats': typeof AchatsRoute
+  '/acteurs': typeof ActeursRoute
   '/aide': typeof AideRoute
-  '/clients': typeof ClientsRoute
-  '/commerciaux': typeof CommerciauxRoute
+  '/banque': typeof BanqueRoute
+  '/caisse': typeof CaisseRoute
   '/ecritures': typeof EcrituresRoute
-  '/impayes': typeof ImpayesRoute
   '/parametres': typeof ParametresRoute
   '/produits': typeof ProduitsRoute
-  '/recouvrement': typeof RecouvrementRoute
-  '/regions': typeof RegionsRoute
   '/tresorerie': typeof TresorerieRoute
   '/ventes': typeof VentesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/achats': typeof AchatsRoute
+  '/acteurs': typeof ActeursRoute
   '/aide': typeof AideRoute
-  '/clients': typeof ClientsRoute
-  '/commerciaux': typeof CommerciauxRoute
+  '/banque': typeof BanqueRoute
+  '/caisse': typeof CaisseRoute
   '/ecritures': typeof EcrituresRoute
-  '/impayes': typeof ImpayesRoute
   '/parametres': typeof ParametresRoute
   '/produits': typeof ProduitsRoute
-  '/recouvrement': typeof RecouvrementRoute
-  '/regions': typeof RegionsRoute
   '/tresorerie': typeof TresorerieRoute
   '/ventes': typeof VentesRoute
 }
@@ -139,62 +112,50 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/achats'
+    | '/acteurs'
     | '/aide'
-    | '/clients'
-    | '/commerciaux'
+    | '/banque'
+    | '/caisse'
     | '/ecritures'
-    | '/impayes'
     | '/parametres'
     | '/produits'
-    | '/recouvrement'
-    | '/regions'
     | '/tresorerie'
     | '/ventes'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/achats'
+    | '/acteurs'
     | '/aide'
-    | '/clients'
-    | '/commerciaux'
+    | '/banque'
+    | '/caisse'
     | '/ecritures'
-    | '/impayes'
     | '/parametres'
     | '/produits'
-    | '/recouvrement'
-    | '/regions'
     | '/tresorerie'
     | '/ventes'
   id:
     | '__root__'
     | '/'
-    | '/achats'
+    | '/acteurs'
     | '/aide'
-    | '/clients'
-    | '/commerciaux'
+    | '/banque'
+    | '/caisse'
     | '/ecritures'
-    | '/impayes'
     | '/parametres'
     | '/produits'
-    | '/recouvrement'
-    | '/regions'
     | '/tresorerie'
     | '/ventes'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AchatsRoute: typeof AchatsRoute
+  ActeursRoute: typeof ActeursRoute
   AideRoute: typeof AideRoute
-  ClientsRoute: typeof ClientsRoute
-  CommerciauxRoute: typeof CommerciauxRoute
+  BanqueRoute: typeof BanqueRoute
+  CaisseRoute: typeof CaisseRoute
   EcrituresRoute: typeof EcrituresRoute
-  ImpayesRoute: typeof ImpayesRoute
   ParametresRoute: typeof ParametresRoute
   ProduitsRoute: typeof ProduitsRoute
-  RecouvrementRoute: typeof RecouvrementRoute
-  RegionsRoute: typeof RegionsRoute
   TresorerieRoute: typeof TresorerieRoute
   VentesRoute: typeof VentesRoute
 }
@@ -215,20 +176,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TresorerieRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/regions': {
-      id: '/regions'
-      path: '/regions'
-      fullPath: '/regions'
-      preLoaderRoute: typeof RegionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/recouvrement': {
-      id: '/recouvrement'
-      path: '/recouvrement'
-      fullPath: '/recouvrement'
-      preLoaderRoute: typeof RecouvrementRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/produits': {
       id: '/produits'
       path: '/produits'
@@ -243,13 +190,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParametresRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/impayes': {
-      id: '/impayes'
-      path: '/impayes'
-      fullPath: '/impayes'
-      preLoaderRoute: typeof ImpayesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/ecritures': {
       id: '/ecritures'
       path: '/ecritures'
@@ -257,18 +197,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EcrituresRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/commerciaux': {
-      id: '/commerciaux'
-      path: '/commerciaux'
-      fullPath: '/commerciaux'
-      preLoaderRoute: typeof CommerciauxRouteImport
+    '/caisse': {
+      id: '/caisse'
+      path: '/caisse'
+      fullPath: '/caisse'
+      preLoaderRoute: typeof CaisseRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/clients': {
-      id: '/clients'
-      path: '/clients'
-      fullPath: '/clients'
-      preLoaderRoute: typeof ClientsRouteImport
+    '/banque': {
+      id: '/banque'
+      path: '/banque'
+      fullPath: '/banque'
+      preLoaderRoute: typeof BanqueRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/aide': {
@@ -278,11 +218,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AideRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/achats': {
-      id: '/achats'
-      path: '/achats'
-      fullPath: '/achats'
-      preLoaderRoute: typeof AchatsRouteImport
+    '/acteurs': {
+      id: '/acteurs'
+      path: '/acteurs'
+      fullPath: '/acteurs'
+      preLoaderRoute: typeof ActeursRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -297,16 +237,13 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AchatsRoute: AchatsRoute,
+  ActeursRoute: ActeursRoute,
   AideRoute: AideRoute,
-  ClientsRoute: ClientsRoute,
-  CommerciauxRoute: CommerciauxRoute,
+  BanqueRoute: BanqueRoute,
+  CaisseRoute: CaisseRoute,
   EcrituresRoute: EcrituresRoute,
-  ImpayesRoute: ImpayesRoute,
   ParametresRoute: ParametresRoute,
   ProduitsRoute: ProduitsRoute,
-  RecouvrementRoute: RecouvrementRoute,
-  RegionsRoute: RegionsRoute,
   TresorerieRoute: TresorerieRoute,
   VentesRoute: VentesRoute,
 }

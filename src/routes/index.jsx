@@ -29,16 +29,19 @@ import {
   formatTND,
   formatPercent,
 } from "@/data/mockData";
+
 export const Route = createFileRoute("/")({
   component: OverviewPage,
 });
+
 function OverviewPage() {
   const totalCA = caByMonth.reduce((s, m) => s + m.ca, 0);
   return _jsxs("div", {
     className: "space-y-6",
     children: [
       _jsxs("div", {
-        className: "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 pt-12",
+        // Removed pt-12 — the header offset is already handled by DashboardLayout's pt-20
+        className: "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4",
         children: [
           _jsx(KPICard, {
             label: "Chiffre d'Affaires Total",

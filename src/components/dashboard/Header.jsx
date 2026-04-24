@@ -52,20 +52,27 @@ export function Header({ pathname }) {
       </div>
 
       <div className="flex items-center gap-1.5 flex-shrink-0">
+        {/* Assistant IA button — solid primary so it's always visible */}
         <button
-          className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-primary/35 bg-gradient-to-r from-primary/20 via-primary/15 to-primary/10 px-2.5 py-1.5 text-[11px] font-semibold text-primary-foreground shadow-sm shadow-primary/20 transition-all duration-300 hover:from-primary/30 hover:via-primary/25 hover:to-primary/15 hover:shadow-md hover:shadow-primary/30 hover:scale-[1.02]"
+          className="hidden sm:inline-flex items-center gap-1.5 rounded-lg
+            bg-primary
+            px-3 py-1.5 text-[11px] font-semibold text-white
+            shadow-md shadow-primary/30
+            hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/40 hover:scale-[1.03]
+            transition-all duration-200"
           title="Assistant IA"
         >
-          <Sparkles size={13} className="text-primary-foreground/90" />
+          <Sparkles size={13} className="text-white/90" />
           <span>Assistant IA</span>
         </button>
+
         <button onClick={toggleTheme} title={isDark ? "Mode clair" : "Mode sombre"} className={iconBtn}>
           {isDark ? <Sun size={16} /> : <Moon size={16} />}
         </button>
         <button className={iconBtn} title="Notifications">
           <Bell size={16} />
         </button>
-        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground text-[11px] font-bold flex-shrink-0">
+        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0">
           AD
         </div>
       </div>

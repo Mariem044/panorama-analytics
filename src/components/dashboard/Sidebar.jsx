@@ -3,30 +3,26 @@ import { useSidebar } from "@/store/useSidebar";
 import {
   X,
   LayoutDashboard,
-  ShoppingCart,
+  TrendingUp,
+  Wallet,
+  Boxes,
   Users,
-  Package,
-  Briefcase,
-  BookOpen,
-  CreditCard,
-  MapPin,
-  Truck,
-  AlertTriangle,
+  Receipt,
+  Landmark,
+  Banknote,
   Settings,
   HelpCircle,
 } from "lucide-react";
 
 const navItems = [
   { to: "/", label: "Tableau de Bord", icon: LayoutDashboard },
-  { to: "/ventes", label: "Analyse Ventes", icon: ShoppingCart },
-  { to: "/clients", label: "Analyse Clients", icon: Users },
-  { to: "/produits", label: "Produits", icon: Package },
-  { to: "/commerciaux", label: "Commerciaux", icon: Briefcase },
-  { to: "/ecritures", label: "Écritures", icon: BookOpen },
-  { to: "/recouvrement", label: "Recouvrement", icon: CreditCard },
-  { to: "/regions", label: "Régions", icon: MapPin },
-  { to: "/achats", label: "Achats", icon: Truck },
-  { to: "/impayes", label: "Impayés", icon: AlertTriangle },
+  { to: "/ventes", label: " CA & Performance Commerciale", icon: TrendingUp },
+  { to: "/tresorerie", label: " Trésorerie & Flux Paiement", icon: Wallet },
+  { to: "/produits", label: "Stocks & Approvisionnement", icon: Boxes },
+  { to: "/acteurs", label: "Analyse Acteurs & Segmentation", icon: Users },
+  { to: "/ecritures", label: "Fiscalité & Comptabilité", icon: Receipt },
+  { to: "/caisse", label: "Gestion de Caisse", icon: Banknote },
+  { to: "/banque", label: "Rapprochement Bancaire", icon: Landmark },
 ];
 
 export function Sidebar() {
@@ -44,7 +40,7 @@ export function Sidebar() {
       )}
       <aside
         className={`
-          fixed left-0 top-0 bottom-0 w-[248px] bg-gradient-to-b from-sidebar-bg via-sidebar-bg/98 to-sidebar-bg/95 border-r border-border/80
+          fixed left-0 top-0 bottom-0 w-[264px] bg-gradient-to-b from-sidebar-bg via-sidebar-bg/98 to-sidebar-bg/95 border-r border-border/80
           flex flex-col z-50 transition-all duration-500 ease-in-out
           shadow-xl shadow-black/40 lg:shadow-lg lg:shadow-black/20
           lg:translate-x-0
@@ -71,7 +67,7 @@ export function Sidebar() {
 
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
           <p className="text-[10px] font-semibold text-text-dim uppercase tracking-widest px-3 mb-2">
-            Navigation
+            Domaines
           </p>
           {navItems.map((item) => {
             const active = item.to === "/" ? path === "/" : path.startsWith(item.to);
@@ -81,7 +77,7 @@ export function Sidebar() {
                 to={item.to}
                 onClick={() => setOpen(false)}
                 className={`
-                  flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-[13px] font-medium
+                  flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-[12px] font-medium
                   transition-all duration-150 group relative
                   ${
                     active
@@ -91,10 +87,10 @@ export function Sidebar() {
                 `}
               >
                 <item.icon
-                  size={16}
+                  size={15}
                   className={`flex-shrink-0 transition-colors ${active ? "text-primary" : "text-text-dim group-hover:text-foreground"}`}
                 />
-                <span>{item.label}</span>
+                <span className="leading-tight">{item.label}</span>
                 {active && (
                   <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(59,130,246,0.7)]" />
                 )}
@@ -120,7 +116,7 @@ export function Sidebar() {
             <HelpCircle size={16} className="text-text-dim flex-shrink-0" />
             Aide
           </Link>
-          <p className="text-[10px] text-[#444] px-3 pt-1">v1.0.0</p>
+          <p className="text-[10px] text-[#444] px-3 pt-1">v2.0.0 — FinMAG</p>
         </div>
       </aside>
     </>

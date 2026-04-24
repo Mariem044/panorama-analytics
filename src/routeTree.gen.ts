@@ -13,6 +13,7 @@ import { Route as VentesRouteImport } from './routes/ventes'
 import { Route as TresorerieRouteImport } from './routes/tresorerie'
 import { Route as ProduitsRouteImport } from './routes/produits'
 import { Route as ParametresRouteImport } from './routes/parametres'
+import { Route as FiscaliteRouteImport } from './routes/fiscalite'
 import { Route as EcrituresRouteImport } from './routes/ecritures'
 import { Route as CaisseRouteImport } from './routes/caisse'
 import { Route as BanqueRouteImport } from './routes/banque'
@@ -38,6 +39,11 @@ const ProduitsRoute = ProduitsRouteImport.update({
 const ParametresRoute = ParametresRouteImport.update({
   id: '/parametres',
   path: '/parametres',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FiscaliteRoute = FiscaliteRouteImport.update({
+  id: '/fiscalite',
+  path: '/fiscalite',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EcrituresRoute = EcrituresRouteImport.update({
@@ -78,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/banque': typeof BanqueRoute
   '/caisse': typeof CaisseRoute
   '/ecritures': typeof EcrituresRoute
+  '/fiscalite': typeof FiscaliteRoute
   '/parametres': typeof ParametresRoute
   '/produits': typeof ProduitsRoute
   '/tresorerie': typeof TresorerieRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/banque': typeof BanqueRoute
   '/caisse': typeof CaisseRoute
   '/ecritures': typeof EcrituresRoute
+  '/fiscalite': typeof FiscaliteRoute
   '/parametres': typeof ParametresRoute
   '/produits': typeof ProduitsRoute
   '/tresorerie': typeof TresorerieRoute
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/banque': typeof BanqueRoute
   '/caisse': typeof CaisseRoute
   '/ecritures': typeof EcrituresRoute
+  '/fiscalite': typeof FiscaliteRoute
   '/parametres': typeof ParametresRoute
   '/produits': typeof ProduitsRoute
   '/tresorerie': typeof TresorerieRoute
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/banque'
     | '/caisse'
     | '/ecritures'
+    | '/fiscalite'
     | '/parametres'
     | '/produits'
     | '/tresorerie'
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
     | '/banque'
     | '/caisse'
     | '/ecritures'
+    | '/fiscalite'
     | '/parametres'
     | '/produits'
     | '/tresorerie'
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
     | '/banque'
     | '/caisse'
     | '/ecritures'
+    | '/fiscalite'
     | '/parametres'
     | '/produits'
     | '/tresorerie'
@@ -154,6 +166,7 @@ export interface RootRouteChildren {
   BanqueRoute: typeof BanqueRoute
   CaisseRoute: typeof CaisseRoute
   EcrituresRoute: typeof EcrituresRoute
+  FiscaliteRoute: typeof FiscaliteRoute
   ParametresRoute: typeof ParametresRoute
   ProduitsRoute: typeof ProduitsRoute
   TresorerieRoute: typeof TresorerieRoute
@@ -188,6 +201,13 @@ declare module '@tanstack/react-router' {
       path: '/parametres'
       fullPath: '/parametres'
       preLoaderRoute: typeof ParametresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fiscalite': {
+      id: '/fiscalite'
+      path: '/fiscalite'
+      fullPath: '/fiscalite'
+      preLoaderRoute: typeof FiscaliteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ecritures': {
@@ -242,6 +262,7 @@ const rootRouteChildren: RootRouteChildren = {
   BanqueRoute: BanqueRoute,
   CaisseRoute: CaisseRoute,
   EcrituresRoute: EcrituresRoute,
+  FiscaliteRoute: FiscaliteRoute,
   ParametresRoute: ParametresRoute,
   ProduitsRoute: ProduitsRoute,
   TresorerieRoute: TresorerieRoute,

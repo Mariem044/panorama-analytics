@@ -1,4 +1,4 @@
-import { Link, createRootRoute, Outlet } from "@tanstack/react-router";
+import { Link, createRootRoute } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { applyStoredTheme } from "@/store/useTheme";
 
@@ -32,9 +32,5 @@ export const Route = createRootRoute({
 });
 
 function RootComponent() {
-  return (
-    <DashboardLayout>
-      <Outlet />
-    </DashboardLayout>
-  );
+  return <DashboardLayout />;
 }

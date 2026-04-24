@@ -12,6 +12,7 @@ import {
   Banknote,
   Settings,
   HelpCircle,
+  BookOpen,
 } from "lucide-react";
 
 const navItems = [
@@ -20,7 +21,7 @@ const navItems = [
   { to: "/tresorerie", label: "Trésorerie & Flux Paiement", icon: Wallet },
   { to: "/produits", label: "Stocks & Approvisionnement", icon: Boxes },
   { to: "/acteurs", label: "Analyse Acteurs & Segmentation", icon: Users },
-  { to: "/ecritures", label: "Fiscalité & Comptabilité", icon: Receipt },
+  { to: "/fiscalite", label: "Fiscalité & Comptabilité", icon: Receipt },
   { to: "/caisse", label: "Gestion de Caisse", icon: Banknote },
   { to: "/banque", label: "Rapprochement Bancaire", icon: Landmark },
 ];

@@ -12,7 +12,7 @@ import {
   Banknote,
   Settings,
   HelpCircle,
-  BookOpen,
+  UserCircle,
 } from "lucide-react";
 
 const navItems = [
@@ -46,7 +46,7 @@ export function Sidebar() {
           shadow-xl shadow-black/40 lg:shadow-lg lg:shadow-black/20
           lg:translate-x-0
           ${open ? "translate-x-0" : "-translate-x-full"}
-          backdrop-blur-sm before:absolute before:inset-0 before:bg-gradient-to-br before:from-sidebar-bg/50 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500
+          backdrop-blur-sm
         `}
       >
         <div className="flex items-center justify-between px-6 py-5 border-b border-border">
@@ -60,9 +60,9 @@ export function Sidebar() {
           </div>
           <button
             onClick={() => setOpen(false)}
-            className="lg:hidden w-7 h-7 flex items-center justify-center rounded-md text-text-muted hover:text-foreground hover:bg-gradient-to-br hover:from-surface-hover hover:to-surface-hover/80 hover:shadow-md hover:shadow-primary/10 hover:scale-110 transition-all duration-300 relative overflow-hidden group before:absolute before:inset-0 before:bg-gradient-to-br before:from-primary/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-400"
+            className="lg:hidden w-7 h-7 flex items-center justify-center rounded-md text-text-muted hover:text-foreground hover:bg-surface-hover transition-all duration-300"
           >
-            <X size={16} className="relative z-10" />
+            <X size={16} />
           </button>
         </div>
 
@@ -101,10 +101,23 @@ export function Sidebar() {
         </nav>
 
         <div className="border-t border-border px-3 py-3 space-y-0.5">
+          {/* Profile link */}
+          <Link
+            to="/profil"
+            onClick={() => setOpen(false)}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] w-full transition-colors border
+              ${path === "/profil"
+                ? "bg-primary/10 text-primary border-primary/20"
+                : "text-text-muted hover:bg-surface-hover hover:text-foreground border-transparent"
+              }`}
+          >
+            <UserCircle size={16} className={path === "/profil" ? "text-primary flex-shrink-0" : "text-text-dim flex-shrink-0"} />
+            Mon Profil
+          </Link>
           <Link
             to="/parametres"
             onClick={() => setOpen(false)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] w-full transition-colors border cursor-pointer
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] w-full transition-colors border
               ${path === "/parametres"
                 ? "bg-primary/10 text-primary border-primary/20"
                 : "text-text-muted hover:bg-surface-hover hover:text-foreground border-transparent"
@@ -116,7 +129,7 @@ export function Sidebar() {
           <Link
             to="/aide"
             onClick={() => setOpen(false)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] w-full transition-colors border cursor-pointer
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] w-full transition-colors border
               ${path === "/aide"
                 ? "bg-primary/10 text-primary border-primary/20"
                 : "text-text-muted hover:bg-surface-hover hover:text-foreground border-transparent"

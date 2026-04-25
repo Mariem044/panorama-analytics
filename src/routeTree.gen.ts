@@ -11,7 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VentesRouteImport } from './routes/ventes'
 import { Route as TresorerieRouteImport } from './routes/tresorerie'
-import { Route as ProduitsRouteImport } from './routes/produits'
+import { Route as ProfilRouteImport } from './routes/profil'
+ import { Route as ProduitsRouteImport } from './routes/produits'
 import { Route as ParametresRouteImport } from './routes/parametres'
 import { Route as FiscaliteRouteImport } from './routes/fiscalite'
 import { Route as EcrituresRouteImport } from './routes/ecritures'
@@ -29,6 +30,11 @@ const VentesRoute = VentesRouteImport.update({
 const TresorerieRoute = TresorerieRouteImport.update({
   id: '/tresorerie',
   path: '/tresorerie',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfilRoute = ProfilRouteImport.update({
+  id: '/profil',
+  path: '/profil',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProduitsRoute = ProduitsRouteImport.update({
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/fiscalite': typeof FiscaliteRoute
   '/parametres': typeof ParametresRoute
   '/produits': typeof ProduitsRoute
+  '/profil': typeof ProfilRoute
   '/tresorerie': typeof TresorerieRoute
   '/ventes': typeof VentesRoute
 }
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/fiscalite': typeof FiscaliteRoute
   '/parametres': typeof ParametresRoute
   '/produits': typeof ProduitsRoute
+  '/profil': typeof ProfilRoute
   '/tresorerie': typeof TresorerieRoute
   '/ventes': typeof VentesRoute
 }
@@ -114,6 +122,7 @@ export interface FileRoutesById {
   '/fiscalite': typeof FiscaliteRoute
   '/parametres': typeof ParametresRoute
   '/produits': typeof ProduitsRoute
+  '/profil': typeof ProfilRoute
   '/tresorerie': typeof TresorerieRoute
   '/ventes': typeof VentesRoute
 }
@@ -129,6 +138,7 @@ export interface FileRouteTypes {
     | '/fiscalite'
     | '/parametres'
     | '/produits'
+    | '/profil'
     | '/tresorerie'
     | '/ventes'
   fileRoutesByTo: FileRoutesByTo
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/fiscalite'
     | '/parametres'
     | '/produits'
+    | '/profil'
     | '/tresorerie'
     | '/ventes'
   id:
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/fiscalite'
     | '/parametres'
     | '/produits'
+    | '/profil'
     | '/tresorerie'
     | '/ventes'
   fileRoutesById: FileRoutesById
@@ -169,6 +181,7 @@ export interface RootRouteChildren {
   FiscaliteRoute: typeof FiscaliteRoute
   ParametresRoute: typeof ParametresRoute
   ProduitsRoute: typeof ProduitsRoute
+  ProfilRoute: typeof ProfilRoute
   TresorerieRoute: typeof TresorerieRoute
   VentesRoute: typeof VentesRoute
 }
@@ -187,6 +200,13 @@ declare module '@tanstack/react-router' {
       path: '/tresorerie'
       fullPath: '/tresorerie'
       preLoaderRoute: typeof TresorerieRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profil': {
+      id: '/profil'
+      path: '/profil'
+      fullPath: '/profil'
+      preLoaderRoute: typeof ProfilRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/produits': {
@@ -265,6 +285,7 @@ const rootRouteChildren: RootRouteChildren = {
   FiscaliteRoute: FiscaliteRoute,
   ParametresRoute: ParametresRoute,
   ProduitsRoute: ProduitsRoute,
+  ProfilRoute: ProfilRoute,
   TresorerieRoute: TresorerieRoute,
   VentesRoute: VentesRoute,
 }

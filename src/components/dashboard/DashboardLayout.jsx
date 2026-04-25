@@ -3,8 +3,8 @@ import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { FiltersBar } from "./FiltersBar";
 
-// Pages that don't need the filter bar (utility pages)
-const NO_FILTER_PAGES = ["/", "/parametres", "/aide"];
+// Pages that don't need the filter bar
+const NO_FILTER_PAGES = ["/", "/parametres", "/aide", "/profil"];
 
 export function DashboardLayout() {
   const location = useLocation();

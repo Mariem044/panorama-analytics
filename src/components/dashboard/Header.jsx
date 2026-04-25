@@ -1,4 +1,5 @@
 import { Bell, Sun, Moon, Menu, Sparkles, Search } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { useTheme } from "@/store/useTheme";
 import { useSidebar } from "@/store/useSidebar";
 
@@ -13,6 +14,7 @@ const pageNames = {
   "/banque": "D7 — Rapprochement Bancaire & Remises en Banque",
   "/parametres": "Paramètres",
   "/aide": "Aide",
+  "/profil": "Mon Profil",
 };
 
 export function Header({ pathname }) {
@@ -52,7 +54,6 @@ export function Header({ pathname }) {
       </div>
 
       <div className="flex items-center gap-1.5 flex-shrink-0">
-        {/* Assistant IA button — solid primary so it's always visible */}
         <button
           className="hidden sm:inline-flex items-center gap-1.5 rounded-lg
             bg-primary
@@ -72,9 +73,15 @@ export function Header({ pathname }) {
         <button className={iconBtn} title="Notifications">
           <Bell size={16} />
         </button>
-        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0">
+
+        {/* Avatar — links to profile */}
+        <Link
+          to="/profil"
+          title="Mon profil"
+          className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0 hover:bg-primary/90 hover:scale-110 transition-all duration-200 shadow-md shadow-primary/30"
+        >
           AD
-        </div>
+        </Link>
       </div>
     </header>
   );

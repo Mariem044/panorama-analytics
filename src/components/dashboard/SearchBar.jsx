@@ -4,7 +4,7 @@ import {
   Search, X, ArrowRight,
   LayoutDashboard, TrendingUp, Wallet, Boxes, Users,
   Receipt, Banknote, Landmark, Settings, HelpCircle,
-  User, Package, FileText, Truck,
+  User, Package, FileText, Truck,Sparkles,  
 } from "lucide-react";
 import {
   clients, articles, ecritures, fournisseurs, representants,

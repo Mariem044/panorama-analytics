@@ -13,6 +13,7 @@ import {
   Settings,
   HelpCircle,
   UserCircle,
+  Sparkles,
 } from "lucide-react";
 
 const navItems = [
@@ -101,7 +102,18 @@ export function Sidebar() {
         </nav>
 
         <div className="border-t border-border px-3 py-3 space-y-0.5">
-          {/* Profile link */}
+          <Link
+            to="/assistant"
+            onClick={() => setOpen(false)}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] w-full transition-colors border
+              ${path === "/assistant"
+                ? "bg-primary/10 text-primary border-primary/20"
+                : "text-text-muted hover:bg-surface-hover hover:text-foreground border-transparent"
+              }`}
+          >
+            <Sparkles size={16} className={path === "/assistant" ? "text-primary flex-shrink-0" : "text-text-dim flex-shrink-0"} />
+            Assistant IA
+          </Link>
           <Link
             to="/profil"
             onClick={() => setOpen(false)}

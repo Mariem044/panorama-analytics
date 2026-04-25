@@ -4,7 +4,7 @@ import { Header } from "./Header";
 import { FiltersBar } from "./FiltersBar";
 
 // Pages that don't need the filter bar
-const NO_FILTER_PAGES = ["/", "/parametres", "/aide", "/profil"];
+const NO_FILTER_PAGES = ["/", "/parametres", "/aide", "/profil", "/assistant"];
 
 export function DashboardLayout() {
   const location = useLocation();

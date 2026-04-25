@@ -18,6 +18,7 @@ import { Route as FiscaliteRouteImport } from './routes/fiscalite'
 import { Route as EcrituresRouteImport } from './routes/ecritures'
 import { Route as CaisseRouteImport } from './routes/caisse'
 import { Route as BanqueRouteImport } from './routes/banque'
+import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as AideRouteImport } from './routes/aide'
 import { Route as ActeursRouteImport } from './routes/acteurs'
 import { Route as IndexRouteImport } from './routes/index'
@@ -67,6 +68,11 @@ const BanqueRoute = BanqueRouteImport.update({
   path: '/banque',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AssistantRoute = AssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AideRoute = AideRouteImport.update({
   id: '/aide',
   path: '/aide',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/acteurs': typeof ActeursRoute
   '/aide': typeof AideRoute
+  '/assistant': typeof AssistantRoute
   '/banque': typeof BanqueRoute
   '/caisse': typeof CaisseRoute
   '/ecritures': typeof EcrituresRoute
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/acteurs': typeof ActeursRoute
   '/aide': typeof AideRoute
+  '/assistant': typeof AssistantRoute
   '/banque': typeof BanqueRoute
   '/caisse': typeof CaisseRoute
   '/ecritures': typeof EcrituresRoute
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/acteurs': typeof ActeursRoute
   '/aide': typeof AideRoute
+  '/assistant': typeof AssistantRoute
   '/banque': typeof BanqueRoute
   '/caisse': typeof CaisseRoute
   '/ecritures': typeof EcrituresRoute
@@ -132,6 +141,7 @@ export interface FileRouteTypes {
     | '/'
     | '/acteurs'
     | '/aide'
+    | '/assistant'
     | '/banque'
     | '/caisse'
     | '/ecritures'
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/'
     | '/acteurs'
     | '/aide'
+    | '/assistant'
     | '/banque'
     | '/caisse'
     | '/ecritures'
@@ -160,6 +171,7 @@ export interface FileRouteTypes {
     | '/'
     | '/acteurs'
     | '/aide'
+    | '/assistant'
     | '/banque'
     | '/caisse'
     | '/ecritures'
@@ -175,6 +187,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActeursRoute: typeof ActeursRoute
   AideRoute: typeof AideRoute
+  AssistantRoute: typeof AssistantRoute
   BanqueRoute: typeof BanqueRoute
   CaisseRoute: typeof CaisseRoute
   EcrituresRoute: typeof EcrituresRoute
@@ -251,6 +264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BanqueRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/assistant': {
+      id: '/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/aide': {
       id: '/aide'
       path: '/aide'
@@ -279,6 +299,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActeursRoute: ActeursRoute,
   AideRoute: AideRoute,
+  AssistantRoute: AssistantRoute,
   BanqueRoute: BanqueRoute,
   CaisseRoute: CaisseRoute,
   EcrituresRoute: EcrituresRoute,

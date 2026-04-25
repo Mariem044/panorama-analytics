@@ -2,7 +2,7 @@ import { Bell, Sun, Moon, Menu, Sparkles } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useTheme } from "@/store/useTheme";
 import { useSidebar } from "@/store/useSidebar";
-import { SearchBar } from "./SearchBar";
+import { SearchBar } from "@/components/dashboard/SearchBar";
 
 const pageNames = {
   "/":           "Tableau de Bord",
@@ -40,7 +40,7 @@ export function Header({ pathname }) {
         </h2>
       </div>
 
-      {/* Center — real global search */}
+      {/* Center — global search */}
       <SearchBar />
 
       {/* Right */}
@@ -71,4 +71,4 @@ export function Header({ pathname }) {
       </div>
     </header>
   );
-}np
+}

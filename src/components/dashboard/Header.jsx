@@ -45,13 +45,19 @@ export function Header({ pathname }) {
 
       {/* Right */}
       <div className="flex items-center gap-1.5 flex-shrink-0">
-        <button
-          className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-[11px] font-semibold text-white shadow-md shadow-primary/30 hover:bg-primary/90 hover:scale-[1.03] transition-all duration-200"
-          title="Assistant IA"
-        >
-          <Sparkles size={13} className="text-white/90" />
-          <span>Assistant IA</span>
-        </button>
+        <Link
+  to="/assistant"
+  className="hidden sm:inline-flex items-center gap-1.5 rounded-lg
+    bg-primary
+    px-3 py-1.5 text-[11px] font-semibold text-white
+    shadow-md shadow-primary/30
+    hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/40 hover:scale-[1.03]
+    transition-all duration-200"
+  title="Assistant IA"
+>
+  <Sparkles size={13} className="text-white/90" />
+  <span>Assistant IA</span>
+</Link>
 
         <button onClick={toggleTheme} title={isDark ? "Mode clair" : "Mode sombre"} className={iconBtn}>
           {isDark ? <Sun size={16} /> : <Moon size={16} />}

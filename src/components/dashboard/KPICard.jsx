@@ -1,13 +1,12 @@
 import { TrendingUp, TrendingDown } from "lucide-react";
 
-export function KPICard({ label, value, trend, icon: Icon }) {
+export function KPICard({ label, value, trend, subtitle, icon: Icon }) {
   const isPositive = (trend ?? 0) >= 0;
 
   return (
     <div className="group relative bg-gradient-to-br from-card via-card/95 to-card/80 border border-border/50 rounded-lg md:rounded-xl p-3 md:p-4 lg:p-5 flex flex-col gap-2.5 hover:shadow-lg hover:shadow-primary/25 hover:border-primary/50 transition-all duration-500 ease-out transform hover:-translate-y-1 overflow-hidden backdrop-blur-sm before:absolute before:inset-0 before:bg-gradient-to-br before:from-primary/5 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500">
-      
+
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-primary/0 via-primary/80 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      
       <div className="absolute -top-2 -right-2 w-20 h-20 bg-gradient-to-br from-primary/20 to-transparent rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl" />
 
       <div className="flex items-start justify-between gap-4 relative z-10">
@@ -22,6 +21,13 @@ export function KPICard({ label, value, trend, icon: Icon }) {
             </p>
             <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
           </div>
+
+          {/* ← subtitle now rendered */}
+          {subtitle && (
+            <p className="text-[10px] text-muted-foreground mt-1 truncate">
+              {subtitle}
+            </p>
+          )}
 
           {trend !== undefined && (
             <div className={`flex items-center gap-1.5 mt-2 text-[11px] md:text-[12px] font-medium px-2 py-1 rounded-md ${isPositive ? "text-trend-up bg-trend-up/10 border border-trend-up/20" : "text-trend-down bg-trend-down/10 border border-trend-down/20"} transition-all duration-300 hover:scale-105`}>

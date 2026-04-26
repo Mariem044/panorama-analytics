@@ -93,6 +93,9 @@ function AnomalyDot(props) {
 function EcrituresPage() {
   const nbAnomalies = anomalyData.filter((d) => d.anomalie).length;
   const chartH = useChartHeight();
+  const kpiLoading    = useSimulatedLoading(500);
+  const chartsLoading = useSimulatedLoading(950);
+
 
   return (
     <div className="space-y-6">

@@ -4,6 +4,7 @@ import { KPICard } from "@/components/dashboard/KPICard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
 import { Banknote, AlertCircle, Clock, TrendingUp } from "lucide-react";
+import { ChartCard, KPICardSkeleton, useSimulatedLoading } from "@/components/dashboard/ChartCard";
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine,
@@ -46,6 +47,9 @@ function TresorerietPage() {
   const { modePaiement, horizonPrev, getActiveMonthIndexes, segment, depot } = useFilters();
   const activeIdx = getActiveMonthIndexes();
   const chartH = useChartHeight();
+  const kpiLoading    = useSimulatedLoading(500);
+  const chartsLoading = useSimulatedLoading(950);
+
 
   // Filter encaissements by mode
   const encaissementsMode = useMemo(() => {

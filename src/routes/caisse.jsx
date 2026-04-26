@@ -78,6 +78,9 @@ function CaissePage() {
   const { depot, modePaiement, getActiveMonthIndexes } = useFilters();
   const activeIdx = getActiveMonthIndexes();
   const chartH = useChartHeight();
+  const kpiLoading    = useSimulatedLoading(500);
+  const chartsLoading = useSimulatedLoading(950);
+
 
   // Filter caisses by depot
   const filteredCaisses = useMemo(() => {

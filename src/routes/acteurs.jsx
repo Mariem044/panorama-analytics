@@ -86,6 +86,9 @@ function GaugeSimple({ pct, color, label, value }) {
 function ActeursPage() {
   const { segment, depot } = useFilters();
   const chartH = useChartHeight();
+  const kpiLoading    = useSimulatedLoading(500);
+  const chartsLoading = useSimulatedLoading(950);
+
 
   // Filter clients by segment & depot — stable derivation (no random calls)
   const filteredClients = useMemo(() => {

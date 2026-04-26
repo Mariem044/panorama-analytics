@@ -61,6 +61,9 @@ function ProduitsPage() {
   const { famille, statutArticle, horizonPrev, depot, getActiveMonthIndexes } = useFilters();
   const activeIdx = getActiveMonthIndexes();
   const chartH = useChartHeight();
+  const kpiLoading    = useSimulatedLoading(500);
+  const chartsLoading = useSimulatedLoading(950);
+
 
   // Filter articles
   const filteredArticles = useMemo(() => {

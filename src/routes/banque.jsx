@@ -93,6 +93,9 @@ function BanquePage() {
   const { banque, modeBanque, getActiveMonthIndexes } = useFilters();
   const activeIdx = getActiveMonthIndexes();
   const chartH = useChartHeight();
+  const kpiLoading    = useSimulatedLoading(500);
+  const chartsLoading = useSimulatedLoading(950);
+
 
   const activeBanques = useMemo(() =>
     banque === "Toutes" ? ALL_BANQUES : [banque],

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useChartHeight } from "@/components/dashboard/ChartCard";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
@@ -84,6 +85,7 @@ function GaugeSimple({ pct, color, label, value }) {
 
 function ActeursPage() {
   const { segment, depot } = useFilters();
+  const chartH = useChartHeight();
 
   // Filter clients by segment & depot — stable derivation (no random calls)
   const filteredClients = useMemo(() => {
@@ -170,7 +172,7 @@ function ActeursPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* RFM scatter */}
         <ChartCard title={`Matrice RFM clients${segment !== "Tous" ? ` — ${segment}` : ""} (KPI-22)`}>
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <ScatterChart margin={{ top: 10, right: 10, bottom: 20, left: 10 }}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
               <XAxis
@@ -207,7 +209,7 @@ function ActeursPage() {
 
         {/* Aging GRT */}
         <ChartCard title="Vieillissement créances GRT — par client (KPI-22b)">
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={agingGRT}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
               <XAxis dataKey="client" tick={{ fill: "#666", fontSize: 11 }} axisLine={false} />
@@ -228,7 +230,7 @@ function ActeursPage() {
 
         {/* Livreurs */}
         <ChartCard title={`Performance livreurs${depot !== "Tous" ? ` — ${depot}` : ""} (KPI-23)`}>
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={livreurs} layout="vertical">
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" horizontal={false} />
               <XAxis

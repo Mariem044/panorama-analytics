@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useChartHeight } from "@/components/dashboard/ChartCard";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
@@ -91,6 +92,7 @@ function AnomalyDot(props) {
 
 function FiscalitePage() {
   const nbAnomalies = anomalyData.filter((d) => d.anomalie).length;
+  const chartH = useChartHeight();
 
   return (
     <div className="space-y-6">
@@ -126,7 +128,7 @@ function FiscalitePage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Widget A: Grouped bar Débit vs Crédit top 10 journaux (KPI-25/27) */}
         <ChartCard title="Soldes par journal — Débit vs Crédit (KPI-25/27)">
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={journalData}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
               <XAxis
@@ -152,7 +154,7 @@ function FiscalitePage() {
 
         {/* Widget B: TVA collectée vs déductible (KPI-26) */}
         <ChartCard title="TVA collectée vs déductible (KPI-26)">
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={tvaData}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
               <XAxis dataKey="month" tick={{ fill: "#666", fontSize: 11 }} axisLine={false} />
@@ -203,7 +205,7 @@ function FiscalitePage() {
 
         {/* Widget C: Anomaly scatter (KPI-28) */}
         <ChartCard title="Détection anomalies comptables — Isolation Forest (KPI-28)">
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <ScatterChart margin={{ top: 10, right: 10, bottom: 20, left: 10 }}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
               <XAxis
@@ -250,7 +252,7 @@ function FiscalitePage() {
 
         {/* Widget D: Waterfall mensuel débit/crédit (KPI-25) */}
         <ChartCard title="Équilibre comptable mensuel — Waterfall (KPI-25)">
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={waterfallData}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
               <XAxis dataKey="month" tick={{ fill: "#666", fontSize: 11 }} axisLine={false} />

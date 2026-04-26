@@ -1,77 +1,49 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useChartHeight } from "@/components/dashboard/ChartCard";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
 import { Banknote, Wallet, TrendingUp, Activity } from "lucide-react";
 import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  ReferenceLine,
+  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer, ReferenceLine,
 } from "recharts";
 import { CHART_COLORS } from "@/data/mockData";
+import { useFilters } from "@/store/useFilters";
+import { useMemo } from "react";
 
 export const Route = createFileRoute("/caisse")({
   component: CaissePage,
 });
 
-// Multiple caisses (KPI-29)
-const caisses = [
-  { id: "CA-01", nom: "Caisse Centrale", especes: 58000, cheques: 15000, seuilMin: 20000 },
-  { id: "CA-02", nom: "Caisse Tunis Nord", especes: 32000, cheques: 8000, seuilMin: 15000 },
-  { id: "CA-03", nom: "Caisse Sfax", especes: 28000, cheques: 7000, seuilMin: 20000 },
-  { id: "CA-04", nom: "Caisse Sousse", especes: 18000, cheques: 5000, seuilMin: 25000 },
-  { id: "CA-05", nom: "Caisse Nabeul", especes: 11000, cheques: 3000, seuilMin: 15000 },
+const ALL_CAISSES = [
+  { id: "CA-01", nom: "Caisse Centrale",  especes: 58000, cheques: 15000, seuilMin: 20000, depot: "Dépôt Central" },
+  { id: "CA-02", nom: "Caisse Tunis Nord",especes: 32000, cheques: 8000,  seuilMin: 15000, depot: "Tunis Nord" },
+  { id: "CA-03", nom: "Caisse Sfax",       especes: 28000, cheques: 7000,  seuilMin: 20000, depot: "Sfax" },
+  { id: "CA-04", nom: "Caisse Sousse",     especes: 18000, cheques: 5000,  seuilMin: 25000, depot: "Sousse" },
+  { id: "CA-05", nom: "Caisse Nabeul",     especes: 11000, cheques: 3000,  seuilMin: 15000, depot: "Nabeul" },
+  { id: "CA-06", nom: "Caisse Bizerte",    especes: 22000, cheques: 6000,  seuilMin: 18000, depot: "Bizerte" },
+  { id: "CA-07", nom: "Caisse Tunis Sud",  especes: 19000, cheques: 4000,  seuilMin: 15000, depot: "Tunis Sud" },
 ];
 
-// Daily flux (KPI-30/31) — last 30 days
-const dailyFlux = Array.from({ length: 30 }, (_, i) => {
+const ALL_DAILY_FLUX = Array.from({ length: 30 }, (_, i) => {
   const credit = Math.round(8000 + Math.random() * 20000);
   const debit = Math.round(5000 + Math.random() * 15000);
-  return {
-    day: `J-${30 - i}`,
-    credit,
-    debit: -debit,
-    net: credit - debit,
-  };
+  return { day: `J-${30 - i}`, credit, debit: -debit, net: credit - debit };
 });
 let cumul = 120000;
-dailyFlux.forEach((d) => { cumul += d.net; d.cumul = cumul; });
+ALL_DAILY_FLUX.forEach((d) => { cumul += d.net; d.cumul = cumul; });
 
-// Donut mouvements par nature (KPI-31)
-const natureMvt = [
-  { name: "Vente espèces", value: 38 },
+const NATURE_MVT = [
+  { name: "Vente espèces",    value: 38 },
   { name: "Transfert caisse", value: 22 },
-  { name: "Remboursement", value: 15 },
-  { name: "Dépenses courantes", value: 13 },
-  { name: "Avances", value: 8 },
-  { name: "Autres", value: 4 },
+  { name: "Remboursement",    value: 15 },
+  { name: "Dépenses courantes",value: 13 },
+  { name: "Avances",          value: 8 },
+  { name: "Autres",           value: 4 },
 ];
 
-// Prophet forecast (KPI-32) — 90j historique + 30j prévision
-const prophetData = Array.from({ length: 120 }, (_, i) => {
-  const isHistorique = i < 90;
-  const base = 147000 + Math.sin(i / 7) * 15000 + (Math.random() - 0.5) * 8000;
-  return {
-    day: `J${i - 89}`,
-    historique: isHistorique ? Math.round(base) : null,
-    prevision: !isHistorique ? Math.round(base * 1.05) : null,
-    prevLow: !isHistorique ? Math.round(base * 0.88) : null,
-    prevHigh: !isHistorique ? Math.round(base * 1.22) : null,
-  };
-});
-
-// Multi-gauge component
 function MultiGauge({ caisses }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 py-2">
@@ -103,31 +75,111 @@ function MultiGauge({ caisses }) {
 }
 
 function CaissePage() {
+  const { depot, modePaiement, getActiveMonthIndexes } = useFilters();
+  const activeIdx = getActiveMonthIndexes();
+  const chartH = useChartHeight();
+
+  // Filter caisses by depot
+  const filteredCaisses = useMemo(() => {
+    if (depot === "Tous") return ALL_CAISSES;
+    return ALL_CAISSES.filter((c) =>
+      c.depot === depot || c.depot.includes(depot.replace("Dépôt ", ""))
+    );
+  }, [depot]);
+
+  // Compute KPIs from filtered caisses
+  const totalEspeces = useMemo(() =>
+    filteredCaisses.reduce((s, c) => s + c.especes, 0),
+    [filteredCaisses]
+  );
+  const totalCheques = useMemo(() =>
+    filteredCaisses.reduce((s, c) => s + c.cheques, 0),
+    [filteredCaisses]
+  );
+
+  // Filter daily flux by active month indexes (simulate: each index = a week)
+  const filteredFlux = useMemo(() => {
+    // map active months to day ranges: each month = ~2-3 days from the 30-day window
+    const ratio = activeIdx.length / 12;
+    const daysToShow = Math.max(5, Math.round(30 * ratio));
+    return ALL_DAILY_FLUX.slice(ALL_DAILY_FLUX.length - daysToShow);
+  }, [activeIdx]);
+
+  // Net journalier from last day
+  const lastFlux = filteredFlux[filteredFlux.length - 1];
+  const netJournalier = lastFlux ? lastFlux.net : 0;
+
+  // Prophet forecast for solde caisse
+  const prophetData = useMemo(() => {
+    const base = totalEspeces + totalCheques;
+    return Array.from({ length: 40 }, (_, i) => {
+      const isHistorique = i < 30;
+      const val = base + Math.sin(i / 7) * 15000 + (Math.random() - 0.5) * 8000;
+      return {
+        day: `J${i - 29}`,
+        historique: isHistorique ? Math.round(val) : null,
+        prevision:  !isHistorique ? Math.round(val * 1.05) : null,
+        prevLow:    !isHistorique ? Math.round(val * 0.88) : null,
+        prevHigh:   !isHistorique ? Math.round(val * 1.22) : null,
+      };
+    });
+  }, [totalEspeces, totalCheques]);
+
+  const previsionJ15 = prophetData.find((d) => d.day === "J10" || d.prevision)?.prevision ?? 185000;
+
   return (
     <div className="space-y-6">
-      {/* KPI Cards — draft D6 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KPICard label="Solde espèces total" value="147 K DT" subtitle="toutes caisses" icon={Banknote} />
-        <KPICard label="Solde chèques" value="38 K DT" subtitle="CA_SoldeCheque" icon={Wallet} />
-        <KPICard label="Flux net journalier" value="+12 K DT" subtitle="Crédit - Débit (hier)" trend={5.2} icon={TrendingUp} />
-        <KPICard label="Prévision solde J+15" value="185 K DT" subtitle="Modèle Prophet (80% conf.)" icon={Activity} />
+        <KPICard
+          label="Solde espèces total"
+          value={`${(totalEspeces / 1000).toFixed(0)} K DT`}
+          subtitle={depot !== "Tous" ? depot : "toutes caisses"}
+          icon={Banknote}
+        />
+        <KPICard
+          label="Solde chèques"
+          value={`${(totalCheques / 1000).toFixed(0)} K DT`}
+          subtitle={`${filteredCaisses.length} caisse(s) filtrée(s)`}
+          icon={Wallet}
+        />
+        <KPICard
+          label="Flux net journalier"
+          value={`${netJournalier > 0 ? "+" : ""}${(netJournalier / 1000).toFixed(0)} K DT`}
+          subtitle="Crédit - Débit (hier)"
+          trend={netJournalier > 0 ? 5.2 : -3.1}
+          icon={TrendingUp}
+        />
+        <KPICard
+          label="Prévision solde J+15"
+          value={`${(previsionJ15 / 1000).toFixed(0)} K DT`}
+          subtitle="Modèle Prophet (80% conf.)"
+          icon={Activity}
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Widget A: Multi-gauges par caisse (KPI-29) */}
-        <ChartCard title="Solde de caisse par caisse — Espèces vs Chèques (KPI-29)">
-          <MultiGauge caisses={caisses} />
-          <div className="flex gap-3 text-[10px] text-text-dim mt-1">
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500 inline-block" /> Espèces</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-purple-500 inline-block" /> Chèques</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 inline-block animate-pulse" /> Sous seuil min</span>
-          </div>
+        {/* Multi-gauges par caisse */}
+        <ChartCard title={`Solde de caisse${depot !== "Tous" ? ` — ${depot}` : " par caisse"} — Espèces vs Chèques (KPI-29)`}>
+          {filteredCaisses.length > 0 ? (
+            <>
+              <MultiGauge caisses={filteredCaisses} />
+              <div className="flex gap-3 text-[10px] text-text-dim mt-1">
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500 inline-block" /> Espèces</span>
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-purple-500 inline-block" /> Chèques</span>
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 inline-block animate-pulse" /> Sous seuil min</span>
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center justify-center h-40 text-text-dim text-[13px]">
+              Aucune caisse pour ce dépôt
+            </div>
+          )}
         </ChartCard>
 
-        {/* Widget B: Daily bar Débit/Crédit + cumul line (KPI-30/31) */}
+        {/* Daily flux */}
         <ChartCard title="Flux journaliers débit / crédit (KPI-30/31)">
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={dailyFlux.slice(-20)}>
+          <ResponsiveContainer width="100%" height={chartH}>
+            <BarChart data={filteredFlux}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
               <XAxis dataKey="day" tick={{ fill: "#666", fontSize: 9 }} axisLine={false} interval={3} />
               <YAxis yAxisId="left" tick={{ fill: "#666", fontSize: 11 }} axisLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`} />
@@ -136,26 +188,38 @@ function CaissePage() {
               <Legend wrapperStyle={{ fontSize: 12, color: "#888" }} />
               <ReferenceLine yAxisId="left" y={0} stroke="#444" />
               <Bar yAxisId="left" dataKey="credit" fill="#3b82f6" name="Crédit" radius={[2, 2, 0, 0]} />
-              <Bar yAxisId="left" dataKey="debit" fill="#ef4444" name="Débit" radius={[0, 0, 2, 2]} />
-              <Line yAxisId="right" type="monotone" dataKey="cumul" stroke="#000" strokeWidth={2} dot={false} name="Solde cumulé" />
+              <Bar yAxisId="left" dataKey="debit"  fill="#ef4444" name="Débit"  radius={[0, 0, 2, 2]} />
+              <Line yAxisId="right" type="monotone" dataKey="cumul" stroke="#a855f7" strokeWidth={2} dot={false} name="Solde cumulé" />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
 
-        {/* Widget C: Donut + top 10 nature mouvements (KPI-31) */}
+        {/* Donut nature mouvements */}
         <ChartCard title="Mouvements par nature (KPI-31)">
           <div className="grid grid-cols-2 gap-2 h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={natureMvt} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={45} outerRadius={85} label={({ percent }) => `${((percent ?? 0) * 100).toFixed(0)}%`} fontSize={10}>
-                  {natureMvt.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+                <Pie
+                  data={NATURE_MVT}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={45}
+                  outerRadius={85}
+                  label={({ percent }) => `${((percent ?? 0) * 100).toFixed(0)}%`}
+                  fontSize={10}
+                >
+                  {NATURE_MVT.map((_, i) => (
+                    <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                  ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>
             <div className="overflow-auto py-2">
               <p className="text-[10px] text-text-dim font-semibold uppercase tracking-wider mb-2">Top natures</p>
-              {natureMvt.map((n, i) => (
+              {NATURE_MVT.map((n, i) => (
                 <div key={i} className="flex items-center gap-2 mb-2">
                   <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: CHART_COLORS[i % CHART_COLORS.length] }} />
                   <div className="flex-1 min-w-0">
@@ -171,20 +235,20 @@ function CaissePage() {
           </div>
         </ChartCard>
 
-        {/* Widget D: Prophet forecast solde caisse (KPI-32) */}
+        {/* Prophet forecast */}
         <ChartCard title="Prévision solde caisse — Prophet 30j (KPI-32)">
-          <ResponsiveContainer width="100%" height={280}>
-            <LineChart data={prophetData.filter((_, i) => i % 3 === 0)}>
+          <ResponsiveContainer width="100%" height={chartH}>
+            <LineChart data={prophetData.filter((_, i) => i % 2 === 0)}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
               <XAxis dataKey="day" tick={{ fill: "#666", fontSize: 9 }} axisLine={false} interval={4} />
               <YAxis tick={{ fill: "#666", fontSize: 11 }} axisLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`} />
               <Tooltip content={<CustomTooltip />} />
               <Legend wrapperStyle={{ fontSize: 12, color: "#888" }} />
               <ReferenceLine x="J1" stroke="#555" strokeDasharray="4 4" label={{ value: "Aujourd'hui", fill: "#666", fontSize: 9 }} />
-              <Line type="monotone" dataKey="historique" stroke="#3b82f6" strokeWidth={2} dot={false} name="Historique 90j" connectNulls={false} />
-              <Line type="monotone" dataKey="prevision" stroke="#6366f1" strokeWidth={2} strokeDasharray="6 3" dot={false} name="Prévision 30j" connectNulls />
-              <Line type="monotone" dataKey="prevHigh" stroke="#6366f1" strokeWidth={1} strokeDasharray="2 4" dot={false} name="IC 80% haut" connectNulls strokeOpacity={0.4} />
-              <Line type="monotone" dataKey="prevLow" stroke="#6366f1" strokeWidth={1} strokeDasharray="2 4" dot={false} name="IC 80% bas" connectNulls strokeOpacity={0.4} />
+              <Line type="monotone" dataKey="historique" stroke="#3b82f6" strokeWidth={2} dot={false} name="Historique" connectNulls={false} />
+              <Line type="monotone" dataKey="prevision"  stroke="#6366f1" strokeWidth={2} strokeDasharray="6 3" dot={false} name="Prévision 30j" connectNulls />
+              <Line type="monotone" dataKey="prevHigh"   stroke="#6366f1" strokeWidth={1} strokeDasharray="2 4" dot={false} name="IC 80% haut" connectNulls strokeOpacity={0.4} />
+              <Line type="monotone" dataKey="prevLow"    stroke="#6366f1" strokeWidth={1} strokeDasharray="2 4" dot={false} name="IC 80% bas"  connectNulls strokeOpacity={0.4} />
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>

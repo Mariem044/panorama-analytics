@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useChartHeight } from "@/components/dashboard/ChartCard";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
@@ -59,6 +60,7 @@ function GaugeChart({ value, target, label }) {
 function ProduitsPage() {
   const { famille, statutArticle, horizonPrev, depot, getActiveMonthIndexes } = useFilters();
   const activeIdx = getActiveMonthIndexes();
+  const chartH = useChartHeight();
 
   // Filter articles
   const filteredArticles = useMemo(() => {
@@ -128,7 +130,7 @@ function ProduitsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ChartCard title={`Valeur stock par famille${famille !== "Toutes" ? ` — ${famille}` : ""} (KPI-13)`}>
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <Treemap
               data={treemapData}
               dataKey="size"
@@ -212,7 +214,7 @@ function ProduitsPage() {
         </ChartCard>
 
         <ChartCard title="Rotation stocks — DSI vs CA par article (KPI-15)">
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <ScatterChart margin={{ top: 10, right: 10, bottom: 20, left: 10 }}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
               <XAxis dataKey="dsi" name="DSI (j)" tick={{ fill: "#666", fontSize: 11 }} axisLine={false} label={{ value: "DSI (jours)", position: "insideBottom", offset: -10, fill: "#555", fontSize: 11 }} />

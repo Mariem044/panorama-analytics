@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useChartHeight } from "@/components/dashboard/ChartCard";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
@@ -40,6 +41,7 @@ const REGION_DATA = ["Tunis", "Sfax", "Sousse", "Nabeul", "Bizerte", "Gabès", "
 function VentesPage() {
   const { segment, depot, getActiveMonthIndexes } = useFilters();
   const activeIdx = getActiveMonthIndexes();
+  const chartH = useChartHeight();
 
   // Filter monthly data by active quarter/months
   const filteredMonthly = useMemo(
@@ -95,7 +97,7 @@ function VentesPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* CA Evolution */}
         <ChartCard title="Évolution mensuelle du CA vs Objectif (KPI-01)">
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <AreaChart data={filteredMonthly}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
               <XAxis dataKey="month" tick={{ fill: "#666", fontSize: 11 }} axisLine={false} />
@@ -137,7 +139,7 @@ function VentesPage() {
 
         {/* Top Familles */}
         <ChartCard title="Top familles de produits par CA (KPI-02)">
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={FAMILLE_DATA.slice(0, 6)} layout="vertical">
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" horizontal={false} />
               <XAxis
@@ -167,7 +169,7 @@ function VentesPage() {
         <ChartCard
           title={`CA par région${depot !== "Tous" ? ` — ${depot}` : ""} (KPI-03)`}
         >
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={filteredRegions}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
               <XAxis dataKey="name" tick={{ fill: "#666", fontSize: 11 }} axisLine={false} />
@@ -188,7 +190,7 @@ function VentesPage() {
 
         {/* Monthly trend */}
         <ChartCard title="Tendance mensuelle CA vs N-1 (KPI-04)">
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <LineChart data={filteredMonthly}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
               <XAxis dataKey="month" tick={{ fill: "#666", fontSize: 11 }} axisLine={false} />

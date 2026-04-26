@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useChartHeight } from "@/components/dashboard/ChartCard";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
@@ -44,6 +45,7 @@ const AGING = [
 function TresorerietPage() {
   const { modePaiement, horizonPrev, getActiveMonthIndexes, segment, depot } = useFilters();
   const activeIdx = getActiveMonthIndexes();
+  const chartH = useChartHeight();
 
   // Filter encaissements by mode
   const encaissementsMode = useMemo(() => {
@@ -116,7 +118,7 @@ function TresorerietPage() {
         </ChartCard>
 
         <ChartCard title={`Flux trésorerie prévisionnel ${horizonPrev} (KPI-11)`}>
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={waterfallFlat}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
               <XAxis dataKey="month" tick={{ fill: "#666", fontSize: 11 }} axisLine={false} />
@@ -132,7 +134,7 @@ function TresorerietPage() {
         </ChartCard>
 
         <ChartCard title="Vieillissement des créances — Aging (KPI-09)">
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={AGING}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
               <XAxis dataKey="client" tick={{ fill: "#666", fontSize: 11 }} axisLine={false} />

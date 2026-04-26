@@ -1,3 +1,5 @@
+import { useIsMobile } from "@/hooks/use-mobile";
+
 export function ChartCard({ title, subtitle, children, className = "" }) {
   return (
     <div
@@ -12,7 +14,7 @@ export function ChartCard({ title, subtitle, children, className = "" }) {
       {/* Header */}
       <div className="mb-4 md:mb-5 relative z-10 flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h3 className="text-[15px] md:text-[16px] font-bold text-foreground leading-tight group-hover:text-primary transition-colors duration-300">
+          <h3 className="text-[14px] md:text-[16px] font-bold text-foreground leading-tight group-hover:text-primary transition-colors duration-300">
             {title}
           </h3>
           {subtitle && (
@@ -32,4 +34,16 @@ export function ChartCard({ title, subtitle, children, className = "" }) {
       </div>
     </div>
   );
+}
+
+/**
+ * useChartHeight — returns a chart height appropriate for the screen size.
+ * Use instead of hardcoded 280 inside ResponsiveContainer height props.
+ *
+ * @param {number} desktop  height on md+ screens (default 280)
+ * @param {number} mobile   height on small screens (default 200)
+ */
+export function useChartHeight(desktop = 280, mobile = 200) {
+  const isMobile = useIsMobile();
+  return isMobile ? mobile : desktop;
 }

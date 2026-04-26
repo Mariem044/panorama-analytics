@@ -1,4 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { useChartHeight } from "@/components/dashboard/ChartCard";
 import { createFileRoute } from "@tanstack/react-router";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
@@ -36,6 +37,7 @@ export const Route = createFileRoute("/")({
 
 function OverviewPage() {
   const totalCA = caByMonth.reduce((s, m) => s + m.ca, 0);
+  const chartH = useChartHeight();
   return _jsxs("div", {
     className: "space-y-6",
     children: [
@@ -77,7 +79,7 @@ function OverviewPage() {
             title: "\u00C9volution mensuelle du CA",
             children: _jsx(ResponsiveContainer, {
               width: "100%",
-              height: 280,
+              height: chartH,
               children: _jsxs(LineChart, {
                 data: caByMonth,
                 children: [
@@ -109,7 +111,7 @@ function OverviewPage() {
             title: "Top 5 familles de produits par CA",
             children: _jsx(ResponsiveContainer, {
               width: "100%",
-              height: 280,
+              height: chartH,
               children: _jsxs(BarChart, {
                 data: topFamilles,
                 layout: "vertical",
@@ -142,7 +144,7 @@ function OverviewPage() {
             title: "R\u00E9partition CA par r\u00E9gion",
             children: _jsx(ResponsiveContainer, {
               width: "100%",
-              height: 280,
+              height: chartH,
               children: _jsxs(PieChart, {
                 children: [
                   _jsx(Pie, {
@@ -168,7 +170,7 @@ function OverviewPage() {
             title: "Ventes vs Objectifs",
             children: _jsx(ResponsiveContainer, {
               width: "100%",
-              height: 280,
+              height: chartH,
               children: _jsxs(AreaChart, {
                 data: caByMonth,
                 children: [

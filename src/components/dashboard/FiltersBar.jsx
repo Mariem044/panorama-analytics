@@ -1,6 +1,8 @@
 import { useLocation } from "@tanstack/react-router";
-import { Filter, Calendar, Building2, Users, Database } from "lucide-react";
+import { Filter, Calendar, Building2, Users, Database, ChevronDown } from "lucide-react";
 import { useFilters } from "@/store/useFilters";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useState } from "react";
 
 const PERIODS = [
   { label: "Jan 2024 – Déc 2024", quarter: "Tous" },
@@ -10,7 +12,7 @@ const PERIODS = [
   { label: "Q4 2024",             quarter: "Q4" },
 ];
 
-const DEPOTS  = ["Tous", "Tunis Nord", "Tunis Sud", "Sfax", "Sousse", "Nabeul", "Bizerte", "Dépôt Central"];
+const DEPOTS   = ["Tous", "Tunis Nord", "Tunis Sud", "Sfax", "Sousse", "Nabeul", "Bizerte", "Dépôt Central"];
 const SEGMENTS = ["Tous", "DÉTAILLANTS", "SEMI-GROS", "HORECA", "GROSSISTES", "DISTRIBUTEUR"];
 const SOURCES  = ["MAG_2020 + GRT_MAG", "MAG_2020", "GRT_MAG"];
 
@@ -38,13 +40,13 @@ const DOMAIN_EXTRA = {
 
 function SelectFilter({ label, value, onChange, options, icon: Icon }) {
   return (
-    <div className="flex items-center gap-1.5 bg-surface-hover/60 border border-border/60 rounded-lg px-2.5 py-1.5">
+    <div className="flex items-center gap-1.5 bg-surface-hover/60 border border-border/60 rounded-lg px-2.5 py-1.5 min-w-0">
       {Icon && <Icon size={12} className="text-text-dim flex-shrink-0" />}
-      <span className="text-[10px] text-text-dim font-medium whitespace-nowrap">{label}:</span>
+      <span className="text-[10px] text-text-dim font-medium whitespace-nowrap hidden sm:block">{label}:</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="bg-transparent text-[11px] text-foreground font-medium outline-none cursor-pointer min-w-0"
+        className="bg-transparent text-[11px] text-foreground font-medium outline-none cursor-pointer min-w-0 max-w-[110px] sm:max-w-none truncate"
       >
         {options.map((o) => (
           <option key={o} value={o} className="bg-background">
@@ -60,9 +62,10 @@ export function FiltersBar() {
   const location   = useLocation();
   const path       = location.pathname;
   const filters    = useFilters();
+  const isMobile   = useIsMobile();
   const extraDefs  = DOMAIN_EXTRA[path] || [];
+  const [expanded, setExpanded] = useState(false);
 
-  // Period selection maps to quarter in store
   const currentPeriodLabel =
     PERIODS.find((p) => p.quarter === filters.quarter)?.label ?? PERIODS[0].label;
 
@@ -71,14 +74,8 @@ export function FiltersBar() {
     filters.setQuarter(found ? found.quarter : "Tous");
   };
 
-  return (
-    <div className="flex flex-wrap items-center gap-2 px-1 py-2 mb-4 border border-border/40 rounded-xl bg-background/40 backdrop-blur-sm sticky top-16 z-20">
-      <div className="flex items-center gap-1.5 text-text-dim pr-2 border-r border-border/60">
-        <Filter size={13} />
-        <span className="text-[10px] font-semibold uppercase tracking-wider">Filtres</span>
-      </div>
-
-      {/* Period */}
+  const allFilters = (
+    <>
       <SelectFilter
         label="Période"
         value={currentPeriodLabel}
@@ -86,8 +83,6 @@ export function FiltersBar() {
         options={PERIODS.map((p) => p.label)}
         icon={Calendar}
       />
-
-      {/* Depot */}
       <SelectFilter
         label="Dépôt"
         value={filters.depot}
@@ -95,8 +90,6 @@ export function FiltersBar() {
         options={DEPOTS}
         icon={Building2}
       />
-
-      {/* Segment (global, shown only on pages that don't define it in DOMAIN_EXTRA) */}
       {!extraDefs.some((d) => d.storeKey === "segment") && (
         <SelectFilter
           label="Segment"
@@ -106,8 +99,6 @@ export function FiltersBar() {
           icon={Users}
         />
       )}
-
-      {/* Source (local state, cosmetic only) */}
       <SelectFilter
         label="Source"
         value="MAG_2020 + GRT_MAG"
@@ -115,8 +106,6 @@ export function FiltersBar() {
         options={SOURCES}
         icon={Database}
       />
-
-      {/* Domain-specific extras wired to store */}
       {extraDefs.map((def) => (
         <SelectFilter
           key={def.storeKey}
@@ -129,6 +118,50 @@ export function FiltersBar() {
           options={def.options}
         />
       ))}
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <div className="mb-4 border border-border/40 rounded-xl bg-background/40 backdrop-blur-sm sticky top-14 z-20">
+        {/* Mobile: collapsed header row */}
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="w-full flex items-center justify-between px-3 py-2.5"
+        >
+          <div className="flex items-center gap-2 text-text-dim">
+            <Filter size={13} />
+            <span className="text-[10px] font-semibold uppercase tracking-wider">Filtres</span>
+            {filters.quarter !== "Tous" && (
+              <span className="text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-bold">
+                {filters.quarter}
+              </span>
+            )}
+          </div>
+          <ChevronDown
+            size={14}
+            className={`text-text-dim transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+          />
+        </button>
+
+        {/* Mobile: expanded filters wrap grid */}
+        {expanded && (
+          <div className="px-3 pb-3 pt-1 border-t border-border/40 flex flex-wrap gap-2">
+            {allFilters}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop: single scrollable row (original behaviour, but flex-wrap added)
+  return (
+    <div className="flex flex-wrap items-center gap-2 px-3 py-2 mb-4 border border-border/40 rounded-xl bg-background/40 backdrop-blur-sm sticky top-16 z-20">
+      <div className="flex items-center gap-1.5 text-text-dim pr-2 border-r border-border/60 flex-shrink-0">
+        <Filter size={13} />
+        <span className="text-[10px] font-semibold uppercase tracking-wider">Filtres</span>
+      </div>
+      {allFilters}
     </div>
   );
 }

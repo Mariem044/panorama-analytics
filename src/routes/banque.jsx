@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { KPICard } from "@/components/dashboard/KPICard";
+import { useChartHeight } from "@/components/dashboard/ChartCard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
 import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
 import { Landmark, CheckCircle, Receipt, Clock } from "lucide-react";
@@ -91,6 +92,7 @@ function GanttPipeline({ data }) {
 function BanquePage() {
   const { banque, modeBanque, getActiveMonthIndexes } = useFilters();
   const activeIdx = getActiveMonthIndexes();
+  const chartH = useChartHeight();
 
   const activeBanques = useMemo(() =>
     banque === "Toutes" ? ALL_BANQUES : [banque],
@@ -178,7 +180,7 @@ function BanquePage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ChartCard title={`Bordereaux${banque !== "Toutes" ? ` — ${banque}` : " par banque"}${modeBanque !== "Tous" ? ` — ${modeBanque}` : ""} (KPI-33)`}>
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={banqueMode}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
               <XAxis dataKey="banque" tick={{ fill: "#666", fontSize: 12 }} axisLine={false} />
@@ -223,7 +225,7 @@ function BanquePage() {
         </ChartCard>
 
         <ChartCard title="Agios & Float bancaire (KPI-35/36)">
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={agiosData}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
               <XAxis dataKey="bordereau" tick={{ fill: "#666", fontSize: 9 }} axisLine={false} angle={-30} textAnchor="end" height={40} />

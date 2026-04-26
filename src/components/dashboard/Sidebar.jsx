@@ -1,5 +1,6 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { useSidebar } from "@/store/useSidebar";
+import { useParametres } from "@/store/useParametres";
 import {
   X,
   LayoutDashboard,
@@ -16,21 +17,22 @@ import {
   Sparkles,
 } from "lucide-react";
 
-const navItems = [
-  { to: "/", label: "Tableau de Bord", icon: LayoutDashboard },
-  { to: "/ventes", label: "CA & Performance Commerciale", icon: TrendingUp },
-  { to: "/tresorerie", label: "Trésorerie & Flux Paiement", icon: Wallet },
-  { to: "/produits", label: "Stocks & Approvisionnement", icon: Boxes },
-  { to: "/acteurs", label: "Analyse Acteurs & Segmentation", icon: Users },
-  { to: "/fiscalite", label: "Fiscalité & Comptabilité", icon: Receipt },
-  { to: "/caisse", label: "Gestion de Caisse", icon: Banknote },
-  { to: "/banque", label: "Rapprochement Bancaire", icon: Landmark },
-];
-
 export function Sidebar() {
   const location = useLocation();
   const path = location.pathname;
   const { open, setOpen } = useSidebar();
+  const { t } = useParametres();
+
+  const navItems = [
+    { to: "/",          label: t("nav.dashboard"), icon: LayoutDashboard },
+    { to: "/ventes",    label: t("nav.ventes"),    icon: TrendingUp },
+    { to: "/tresorerie",label: t("nav.tresorerie"),icon: Wallet },
+    { to: "/produits",  label: t("nav.produits"),  icon: Boxes },
+    { to: "/acteurs",   label: t("nav.acteurs"),   icon: Users },
+    { to: "/fiscalite", label: t("nav.fiscalite"), icon: Receipt },
+    { to: "/caisse",    label: t("nav.caisse"),    icon: Banknote },
+    { to: "/banque",    label: t("nav.banque"),    icon: Landmark },
+  ];
 
   return (
     <>
@@ -69,7 +71,7 @@ export function Sidebar() {
 
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
           <p className="text-[10px] font-semibold text-text-dim uppercase tracking-widest px-3 mb-2">
-            Domaines
+            {t("nav.domains")}
           </p>
           {navItems.map((item) => {
             const active = item.to === "/" ? path === "/" : path.startsWith(item.to);
@@ -112,7 +114,7 @@ export function Sidebar() {
               }`}
           >
             <Sparkles size={16} className={path === "/assistant" ? "text-primary flex-shrink-0" : "text-text-dim flex-shrink-0"} />
-            Assistant IA
+            {t("nav.assistant")}
           </Link>
           <Link
             to="/profil"
@@ -124,7 +126,7 @@ export function Sidebar() {
               }`}
           >
             <UserCircle size={16} className={path === "/profil" ? "text-primary flex-shrink-0" : "text-text-dim flex-shrink-0"} />
-            Mon Profil
+            {t("nav.profil")}
           </Link>
           <Link
             to="/parametres"
@@ -136,7 +138,7 @@ export function Sidebar() {
               }`}
           >
             <Settings size={16} className={path === "/parametres" ? "text-primary flex-shrink-0" : "text-text-dim flex-shrink-0"} />
-            Paramètres
+            {t("nav.parametres")}
           </Link>
           <Link
             to="/aide"
@@ -148,9 +150,9 @@ export function Sidebar() {
               }`}
           >
             <HelpCircle size={16} className={path === "/aide" ? "text-primary flex-shrink-0" : "text-text-dim flex-shrink-0"} />
-            Aide
+            {t("nav.aide")}
           </Link>
-          <p className="text-[10px] text-[#444] px-3 pt-1">v2.0.0 — FinMAG</p>
+          <p className="text-[10px] text-[#444] px-3 pt-1">{t("common.version")}</p>
         </div>
       </aside>
     </>

@@ -1,8 +1,10 @@
 import { Link, createRootRoute } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { applyStoredTheme } from "@/store/useTheme";
+import { applyStoredLanguage } from "@/store/useParametres";
 
 applyStoredTheme();
+applyStoredLanguage();
 
 function NotFoundComponent() {
   return (

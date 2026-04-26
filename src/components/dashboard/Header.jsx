@@ -1,29 +1,33 @@
-import { Sun, Moon, Menu, Sparkles } from "lucide-react";
+import { Bell, Sun, Moon, Menu, Sparkles } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useTheme } from "@/store/useTheme";
 import { useSidebar } from "@/store/useSidebar";
+import { useParametres } from "@/store/useParametres";
 import { SearchBar } from "@/components/dashboard/SearchBar";
-import { NotificationBell } from "@/components/dashboard/NotificationBell";
-
-const pageNames = {
-  "/":           "Tableau de Bord",
-  "/ventes":     "D1 — CA & Performance Commerciale",
-  "/tresorerie": "D2 — Trésorerie & Flux de Paiement",
-  "/produits":   "D3 — Stocks & Approvisionnement",
-  "/acteurs":    "D4 — Analyse Acteurs & Segmentation",
-  "/ecritures":  "D5 — Fiscalité & Comptabilité Analytique",
-  "/fiscalite":  "Fiscalité & Comptabilité",
-  "/caisse":     "D6 — Gestion de Caisse & Mouvements Espèces",
-  "/banque":     "D7 — Rapprochement Bancaire & Remises en Banque",
-  "/parametres": "Paramètres",
-  "/aide":       "Aide",
-  "/profil":     "Mon Profil",
-};
 
 export function Header({ pathname }) {
   const { isDark, toggle: toggleTheme } = useTheme();
   const { toggle: toggleSidebar } = useSidebar();
-  const title = pageNames[pathname] || "SIAD";
+  const { t } = useParametres();
+
+  const pageNameKeys = {
+    "/":           "nav.dashboard",
+    "/ventes":     "nav.ventes",
+    "/tresorerie": "nav.tresorerie",
+    "/produits":   "nav.produits",
+    "/acteurs":    "nav.acteurs",
+    "/ecritures":  "nav.fiscalite",
+    "/fiscalite":  "nav.fiscalite",
+    "/caisse":     "nav.caisse",
+    "/banque":     "nav.banque",
+    "/parametres": "nav.parametres",
+    "/aide":       "nav.aide",
+    "/profil":     "nav.profil",
+    "/assistant":  "nav.assistant",
+  };
+
+  const titleKey = pageNameKeys[pathname];
+  const title = titleKey ? t(titleKey) : "SIAD";
 
   const iconBtn =
     "w-8 h-8 flex items-center justify-center rounded-lg text-text-muted hover:text-foreground hover:bg-surface-hover hover:scale-110 transition-all duration-200";
@@ -54,21 +58,23 @@ export function Header({ pathname }) {
             shadow-md shadow-primary/30
             hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/40 hover:scale-[1.03]
             transition-all duration-200"
-          title="Assistant IA"
+          title={t("header.aiAssistant")}
         >
           <Sparkles size={13} className="text-white/90" />
-          <span>Assistant IA</span>
+          <span>{t("header.aiAssistant")}</span>
         </Link>
 
         <button onClick={toggleTheme} title={isDark ? "Mode clair" : "Mode sombre"} className={iconBtn}>
           {isDark ? <Sun size={16} /> : <Moon size={16} />}
         </button>
 
-        <NotificationBell />
+        <button className={iconBtn} title="Notifications">
+          <Bell size={16} />
+        </button>
 
         <Link
           to="/profil"
-          title="Mon profil"
+          title={t("nav.profil")}
           className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0 hover:bg-primary/90 hover:scale-110 transition-all duration-200 shadow-md shadow-primary/30"
         >
           AD

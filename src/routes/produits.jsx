@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useChartHeight } from "@/components/dashboard/ChartCard";
+import { useChartHeight, ChartCard, useSimulatedLoading } from "@/components/dashboard/ChartCard";
 import { KPICard } from "@/components/dashboard/KPICard";
-import { ChartCard } from "@/components/dashboard/ChartCard";
 import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
 import { Boxes, AlertTriangle, Clock, Bell } from "lucide-react";
 import {
@@ -63,7 +62,6 @@ function ProduitsPage() {
   const chartH = useChartHeight();
   const kpiLoading    = useSimulatedLoading(500);
   const chartsLoading = useSimulatedLoading(950);
-
 
   // Filter articles
   const filteredArticles = useMemo(() => {

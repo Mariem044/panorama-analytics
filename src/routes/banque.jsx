@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { KPICard } from "@/components/dashboard/KPICard";
-import { useChartHeight } from "@/components/dashboard/ChartCard";
-import { ChartCard } from "@/components/dashboard/ChartCard";
+import { useChartHeight, ChartCard, useSimulatedLoading } from "@/components/dashboard/ChartCard";
 import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
 import { Landmark, CheckCircle, Receipt, Clock } from "lucide-react";
 import {
@@ -95,7 +94,6 @@ function BanquePage() {
   const chartH = useChartHeight();
   const kpiLoading    = useSimulatedLoading(500);
   const chartsLoading = useSimulatedLoading(950);
-
 
   const activeBanques = useMemo(() =>
     banque === "Toutes" ? ALL_BANQUES : [banque],

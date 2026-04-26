@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { translations, langCodeMap } from "@/i18n/translations";
+import { translations, langCodeMap } from "@/i18n/Translation";
 
 export const useParametres = create()(
   persist(
@@ -13,7 +13,6 @@ export const useParametres = create()(
 
       setLangue: (langue) => {
         set({ langue });
-        // Apply RTL/LTR and lang attribute immediately
         const code = langCodeMap[langue] ?? "fr";
         document.documentElement.setAttribute("lang", code);
         document.documentElement.setAttribute("dir", code === "ar" ? "rtl" : "ltr");
@@ -23,7 +22,6 @@ export const useParametres = create()(
       setNotifRapports: (v) => set({ notifRapports: v }),
       setNotifSystem: (v) => set({ notifSystem: v }),
 
-      // Translation helper
       t: (key) => {
         const code = langCodeMap[get().langue] ?? "fr";
         return translations[code]?.[key] ?? translations["fr"][key] ?? key;
@@ -33,7 +31,6 @@ export const useParametres = create()(
   ),
 );
 
-/** Call once on app boot to apply persisted language */
 export function applyStoredLanguage() {
   try {
     const stored = JSON.parse(localStorage.getItem("finmag-parametres") || "{}");

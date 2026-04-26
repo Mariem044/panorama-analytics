@@ -5,6 +5,7 @@ import { ChartCard } from "@/components/dashboard/ChartCard";
 import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
 import { DataTable } from "@/components/dashboard/DataTable";
 import { FileText, Receipt, AlertCircle, CheckCircle } from "lucide-react";
+import { useChartHeight, ChartCard, useSimulatedLoading } from "@/components/dashboard/ChartCard";
 import {
   BarChart,
   Bar,

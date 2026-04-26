@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useChartHeight, ChartCard, KPICardSkeleton, useSimulatedLoading } from "@/components/dashboard/ChartCard";
+import { useChartHeight, ChartCard, useSimulatedLoading } from "@/components/dashboard/ChartCard";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
 import { Banknote, AlertCircle, Clock, TrendingUp } from "lucide-react";

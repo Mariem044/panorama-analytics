@@ -1,10 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useChartHeight } from "@/components/dashboard/ChartCard";
 import { KPICard } from "@/components/dashboard/KPICard";
-import { ChartCard } from "@/components/dashboard/ChartCard";
-import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
-import { Users, Building2, AlertTriangle, Truck } from "lucide-react";  
 import { useChartHeight, ChartCard, useSimulatedLoading } from "@/components/dashboard/ChartCard";
+import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
+import { Users, Building2, AlertTriangle, Truck } from "lucide-react"; 
 import {
   ScatterChart, Scatter, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip,

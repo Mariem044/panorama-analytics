@@ -1,10 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useChartHeight } from "@/components/dashboard/ChartCard";
+import { useChartHeight, ChartCard, KPICardSkeleton, useSimulatedLoading } from "@/components/dashboard/ChartCard";
 import { KPICard } from "@/components/dashboard/KPICard";
-import { ChartCard } from "@/components/dashboard/ChartCard";
 import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
 import { Banknote, AlertCircle, Clock, TrendingUp } from "lucide-react";
-import { ChartCard, KPICardSkeleton, useSimulatedLoading } from "@/components/dashboard/ChartCard";
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine,
@@ -50,7 +48,6 @@ function TresorerietPage() {
   const kpiLoading    = useSimulatedLoading(500);
   const chartsLoading = useSimulatedLoading(950);
 
-
   // Filter encaissements by mode
   const encaissementsMode = useMemo(() => {
     if (modePaiement === "Tous") return BASE_ENCAISSEMENTS;
@@ -65,7 +62,7 @@ function TresorerietPage() {
     return BASE_WATERFALL.filter((_, i) => {
       const monthOk = activeIdx.includes(i);
       const horizonOk = i < horizonMonths;
-      return monthOk || horizonOk; // show months in range
+      return monthOk || horizonOk;
     }).slice(0, horizonMonths);
   }, [activeIdx, horizonMonths]);
 

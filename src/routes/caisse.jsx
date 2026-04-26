@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useChartHeight } from "@/components/dashboard/ChartCard";
+import { useChartHeight, ChartCard, useSimulatedLoading } from "@/components/dashboard/ChartCard";
 import { KPICard } from "@/components/dashboard/KPICard";
-import { ChartCard } from "@/components/dashboard/ChartCard";
 import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
 import { Banknote, Wallet, TrendingUp, Activity } from "lucide-react";
 import {
@@ -81,7 +80,6 @@ function CaissePage() {
   const kpiLoading    = useSimulatedLoading(500);
   const chartsLoading = useSimulatedLoading(950);
 
-
   // Filter caisses by depot
   const filteredCaisses = useMemo(() => {
     if (depot === "Tous") return ALL_CAISSES;
@@ -100,9 +98,8 @@ function CaissePage() {
     [filteredCaisses]
   );
 
-  // Filter daily flux by active month indexes (simulate: each index = a week)
+  // Filter daily flux by active month indexes
   const filteredFlux = useMemo(() => {
-    // map active months to day ranges: each month = ~2-3 days from the 30-day window
     const ratio = activeIdx.length / 12;
     const daysToShow = Math.max(5, Math.round(30 * ratio));
     return ALL_DAILY_FLUX.slice(ALL_DAILY_FLUX.length - daysToShow);
@@ -161,7 +158,6 @@ function CaissePage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Multi-gauges par caisse */}
         <ChartCard title={`Solde de caisse${depot !== "Tous" ? ` — ${depot}` : " par caisse"} — Espèces vs Chèques (KPI-29)`}>
           {filteredCaisses.length > 0 ? (
             <>
@@ -179,7 +175,6 @@ function CaissePage() {
           )}
         </ChartCard>
 
-        {/* Daily flux */}
         <ChartCard title="Flux journaliers débit / crédit (KPI-30/31)">
           <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={filteredFlux}>
@@ -197,7 +192,6 @@ function CaissePage() {
           </ResponsiveContainer>
         </ChartCard>
 
-        {/* Donut nature mouvements */}
         <ChartCard title="Mouvements par nature (KPI-31)">
           <div className="grid grid-cols-2 gap-2 h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -238,7 +232,6 @@ function CaissePage() {
           </div>
         </ChartCard>
 
-        {/* Prophet forecast */}
         <ChartCard title="Prévision solde caisse — Prophet 30j (KPI-32)">
           <ResponsiveContainer width="100%" height={chartH}>
             <LineChart data={prophetData.filter((_, i) => i % 2 === 0)}>

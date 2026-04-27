@@ -1,9 +1,10 @@
-import { Bell, Sun, Moon, Menu, Sparkles } from "lucide-react";
+import { Sun, Moon, Menu, Sparkles } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useTheme } from "@/store/useTheme";
 import { useSidebar } from "@/store/useSidebar";
 import { useParametres } from "@/store/useParametres";
 import { SearchBar } from "@/components/dashboard/SearchBar";
+import { NotificationBell } from "@/components/dashboard/NotificationBell";
 
 export function Header({ pathname }) {
   const { isDark, toggle: toggleTheme } = useTheme();
@@ -68,9 +69,7 @@ export function Header({ pathname }) {
           {isDark ? <Sun size={16} /> : <Moon size={16} />}
         </button>
 
-        <button className={iconBtn} title="Notifications">
-          <Bell size={16} />
-        </button>
+        <NotificationBell />
 
         <Link
           to="/profil"

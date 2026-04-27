@@ -158,7 +158,7 @@ function CaissePage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <ChartCard title={`Solde de caisse${depot !== "Tous" ? ` — ${depot}` : " par caisse"} — Espèces vs Chèques (KPI-29)`}>
+        <ChartCard key={`${depot}-${activeIdx.join("")}`} title={`Solde de caisse${depot !== "Tous" ? ` — ${depot}` : " par caisse"} — Espèces vs Chèques (KPI-29)`}>
           {filteredCaisses.length > 0 ? (
             <>
               <MultiGauge caisses={filteredCaisses} />

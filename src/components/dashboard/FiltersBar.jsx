@@ -1,9 +1,10 @@
 import { useLocation } from "@tanstack/react-router";
-import { Filter, Calendar, Building2, Users, Database, ChevronDown } from "lucide-react";
+import { Filter, Calendar, Building2, Users, Database, ChevronDown, X } from "lucide-react";
 import { useFilters } from "@/store/useFilters";
 import { useParametres } from "@/store/useParametres";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
+import { FILTER_DEFAULTS } from "@/store/useFilters";
 
 const PERIODS_FR = [
   { label: "Jan 2024 – Déc 2024", label_en: "Jan 2024 – Dec 2024", label_ar: "يناير 2024 – ديسمبر 2024", quarter: "Tous" },
@@ -39,24 +40,41 @@ const DOMAIN_EXTRA = {
   ],
 };
 
-/**
- * SelectFilter — labelled filter control.
- *
- * Uses a visually-hidden <label> tied to the <select> by id so screen readers
- * announce "Period, Q1 2024" instead of just "Q1 2024".
- * The icon + visible label text are aria-hidden because the <label> already
- * carries the accessible name.
- */
+const FILTER_LABELS = {
+  quarter: "Période",
+  depot: "Dépôt",
+  segment: "Segment",
+  famille: "Famille",
+  modePaiement: "Mode paiement",
+  horizonPrev: "Horizon",
+  statutArticle: "Statut",
+  banque: "Banque",
+  modeBanque: "Mode banque",
+};
+
+function FilterChip({ label, value, onRemove }) {
+  return (
+    <span className="animate-in fade-in-0 zoom-in-95 duration-200 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 border border-primary/30 text-primary text-[11px] font-semibold">
+      {label}: {value}
+      <button
+        onClick={onRemove}
+        className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
+        aria-label={`Retirer le filtre ${label}`}
+      >
+        <X size={10} />
+      </button>
+    </span>
+  );
+}
+
 function SelectFilter({ label, value, onChange, options, icon: Icon, id }) {
   const selectId = id || `filter-${label.replace(/\s+/g, "-").toLowerCase()}`;
   return (
     <div className="flex items-center gap-1.5 bg-surface-hover/60 border border-border/60 rounded-lg px-2.5 py-1.5 min-w-0">
       {Icon && <Icon size={12} className="text-text-dim flex-shrink-0" aria-hidden="true" />}
-      {/* Visible label — hidden from AT since the <label> element below handles the name */}
       <span className="text-[10px] text-text-dim font-medium whitespace-nowrap hidden sm:block" aria-hidden="true">
         {label}:
       </span>
-      {/* Visually-hidden label for AT */}
       <label htmlFor={selectId} className="sr-only">{label}</label>
       <select
         id={selectId}
@@ -83,6 +101,45 @@ export function FiltersBar() {
   const extraDefs  = DOMAIN_EXTRA[path] || [];
   const [expanded, setExpanded] = useState(false);
 
+  const activeFilters = [
+    filters.quarter !== FILTER_DEFAULTS.quarter && {
+      key: "quarter", label: "Période", value: filters.quarter,
+      reset: () => filters.setQuarter(FILTER_DEFAULTS.quarter),
+    },
+    filters.depot !== FILTER_DEFAULTS.depot && {
+      key: "depot", label: "Dépôt", value: filters.depot,
+      reset: () => filters.setDepot(FILTER_DEFAULTS.depot),
+    },
+    filters.segment !== FILTER_DEFAULTS.segment && {
+      key: "segment", label: "Segment", value: filters.segment,
+      reset: () => filters.setSegment(FILTER_DEFAULTS.segment),
+    },
+    filters.famille !== FILTER_DEFAULTS.famille && {
+      key: "famille", label: "Famille", value: filters.famille,
+      reset: () => filters.setFamille(FILTER_DEFAULTS.famille),
+    },
+    filters.modePaiement !== FILTER_DEFAULTS.modePaiement && {
+      key: "modePaiement", label: "Mode paiement", value: filters.modePaiement,
+      reset: () => filters.setModePaiement(FILTER_DEFAULTS.modePaiement),
+    },
+    filters.horizonPrev !== FILTER_DEFAULTS.horizonPrev && {
+      key: "horizonPrev", label: "Horizon", value: filters.horizonPrev,
+      reset: () => filters.setHorizonPrev(FILTER_DEFAULTS.horizonPrev),
+    },
+    filters.banque !== FILTER_DEFAULTS.banque && {
+      key: "banque", label: "Banque", value: filters.banque,
+      reset: () => filters.setBanque(FILTER_DEFAULTS.banque),
+    },
+    filters.modeBanque !== FILTER_DEFAULTS.modeBanque && {
+      key: "modeBanque", label: "Mode banque", value: filters.modeBanque,
+      reset: () => filters.setModeBanque(FILTER_DEFAULTS.modeBanque),
+    },
+    filters.statutArticle !== FILTER_DEFAULTS.statutArticle && {
+      key: "statutArticle", label: "Statut", value: filters.statutArticle,
+      reset: () => filters.setStatutArticle(FILTER_DEFAULTS.statutArticle),
+    },
+  ].filter(Boolean);
+
   const langKey = langue === "English" ? "label_en" : langue === "العربية" ? "label_ar" : "label";
   const periodLabels = PERIODS_FR.map((p) => p[langKey]);
 
@@ -98,40 +155,12 @@ export function FiltersBar() {
 
   const allFilters = (
     <>
-      <SelectFilter
-        id="filter-period"
-        label={t("filters.period")}
-        value={currentPeriodLabel}
-        onChange={handlePeriodChange}
-        options={periodLabels}
-        icon={Calendar}
-      />
-      <SelectFilter
-        id="filter-depot"
-        label={t("filters.depot")}
-        value={filters.depot}
-        onChange={filters.setDepot}
-        options={DEPOTS}
-        icon={Building2}
-      />
+      <SelectFilter id="filter-period" label={t("filters.period")} value={currentPeriodLabel} onChange={handlePeriodChange} options={periodLabels} icon={Calendar} />
+      <SelectFilter id="filter-depot" label={t("filters.depot")} value={filters.depot} onChange={filters.setDepot} options={DEPOTS} icon={Building2} />
       {!extraDefs.some((d) => d.storeKey === "segment") && (
-        <SelectFilter
-          id="filter-segment"
-          label={t("filters.segment")}
-          value={filters.segment}
-          onChange={filters.setSegment}
-          options={SEGMENTS}
-          icon={Users}
-        />
+        <SelectFilter id="filter-segment" label={t("filters.segment")} value={filters.segment} onChange={filters.setSegment} options={SEGMENTS} icon={Users} />
       )}
-      <SelectFilter
-        id="filter-source"
-        label={t("filters.source")}
-        value="MAG_2020 + GRT_MAG"
-        onChange={() => {}}
-        options={SOURCES}
-        icon={Database}
-      />
+      <SelectFilter id="filter-source" label={t("filters.source")} value="MAG_2020 + GRT_MAG" onChange={() => {}} options={SOURCES} icon={Database} />
       {extraDefs.map((def) => (
         <SelectFilter
           key={def.storeKey}
@@ -150,45 +179,30 @@ export function FiltersBar() {
 
   if (isMobile) {
     return (
-      <div
-        className="mb-4 border border-border/40 rounded-xl bg-background/40 backdrop-blur-sm sticky top-14 z-20"
-        role="search"
-        aria-label={t("filters.label")}
-      >
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="w-full flex items-center justify-between px-3 py-2.5"
-          aria-expanded={expanded}
-          aria-controls="filters-panel"
-        >
+      <div className="mb-4 border border-border/40 rounded-xl bg-background/40 backdrop-blur-sm sticky top-14 z-20" role="search" aria-label={t("filters.label")}>
+        <button onClick={() => setExpanded(!expanded)} className="w-full flex items-center justify-between px-3 py-2.5" aria-expanded={expanded} aria-controls="filters-panel">
           <div className="flex items-center gap-2 text-text-dim">
             <Filter size={13} aria-hidden="true" />
-            <span className="text-[10px] font-semibold uppercase tracking-wider">
-              {t("filters.label")}
-            </span>
-            {filters.quarter !== "Tous" && (
-              <span
-                className="text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-bold"
-                aria-label={`Active filter: ${filters.quarter}`}
-              >
-                {filters.quarter}
-              </span>
-            )}
+            <span className="text-[10px] font-semibold uppercase tracking-wider">{t("filters.label")}</span>
           </div>
-          <ChevronDown
-            size={14}
-            className={`text-text-dim transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
-            aria-hidden="true"
-          />
+          <ChevronDown size={14} className={`text-text-dim transition-transform duration-200 ${expanded ? "rotate-180" : ""}`} aria-hidden="true" />
         </button>
 
         {expanded && (
-          <fieldset
-            id="filters-panel"
-            className="px-3 pb-3 pt-1 border-t border-border/40 flex flex-wrap gap-2"
-          >
+          <fieldset id="filters-panel" className="px-3 pb-3 pt-1 border-t border-border/40 flex flex-wrap gap-2">
             <legend className="sr-only">{t("filters.label")}</legend>
             {allFilters}
+
+            {activeFilters.length > 0 && (
+              <div className="w-full flex items-center gap-2 pt-1 mt-1 border-t border-border/40 flex-wrap">
+                {activeFilters.map((f) => (
+                  <FilterChip key={f.key} label={f.label} value={f.value} onRemove={f.reset} />
+                ))}
+                <button onClick={filters.resetAll} className="text-[11px] text-text-dim hover:text-red-400 font-medium transition-colors ml-auto">
+                  Réinitialiser tout
+                </button>
+              </div>
+            )}
           </fieldset>
         )}
       </div>
@@ -196,17 +210,31 @@ export function FiltersBar() {
   }
 
   return (
-    <fieldset
-      className="flex flex-wrap items-center gap-2 px-3 py-2 mb-4 border border-border/40 rounded-xl bg-background/40 backdrop-blur-sm sticky top-16 z-20"
-      role="search"
-      aria-label={t("filters.label")}
-    >
+    <fieldset className="flex flex-wrap items-center gap-2 px-3 py-2 mb-4 border border-border/40 rounded-xl bg-background/40 backdrop-blur-sm sticky top-16 z-20" role="search" aria-label={t("filters.label")}>
       <legend className="sr-only">{t("filters.label")}</legend>
+
       <div className="flex items-center gap-1.5 text-text-dim pr-2 border-r border-border/60 flex-shrink-0" aria-hidden="true">
         <Filter size={13} />
         <span className="text-[10px] font-semibold uppercase tracking-wider">{t("filters.label")}</span>
+        {activeFilters.length > 0 && (
+          <span className="w-4 h-4 rounded-full bg-primary text-white text-[9px] font-bold flex items-center justify-center">
+            {activeFilters.length}
+          </span>
+        )}
       </div>
+
       {allFilters}
+
+      {activeFilters.length > 0 && (
+        <div className="w-full flex items-center gap-2 pt-1 mt-1 border-t border-border/40 flex-wrap">
+          {activeFilters.map((f) => (
+            <FilterChip key={f.key} label={f.label} value={f.value} onRemove={f.reset} />
+          ))}
+          <button onClick={filters.resetAll} className="text-[11px] text-text-dim hover:text-red-400 font-medium transition-colors ml-auto">
+            Réinitialiser tout
+          </button>
+        </div>
+      )}
     </fieldset>
   );
 }

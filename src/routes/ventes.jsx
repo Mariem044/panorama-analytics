@@ -96,7 +96,7 @@ function VentesPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* CA Evolution */}
-        <ChartCard title="Évolution mensuelle du CA vs Objectif (KPI-01)">
+        <ChartCard key={`${segment}-${depot}-${activeIdx.join("")}`} title="Évolution mensuelle du CA vs Objectif (KPI-01)">
           <ResponsiveContainer width="100%" height={chartH}>
             <AreaChart data={filteredMonthly}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />

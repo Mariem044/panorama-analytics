@@ -1,15 +1,21 @@
-import { Sun, Moon, Menu, Sparkles } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { Sun, Moon, Menu, Sparkles, LogOut, ChevronDown } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useTheme } from "@/store/useTheme";
 import { useSidebar } from "@/store/useSidebar";
 import { useParametres } from "@/store/useParametres";
+import { useAuth } from "@/store/useAuth";
 import { SearchBar } from "@/components/dashboard/SearchBar";
 import { NotificationBell } from "@/components/dashboard/NotificationBell";
+import { useState, useRef, useEffect } from "react";
 
 export function Header({ pathname }) {
   const { isDark, toggle: toggleTheme } = useTheme();
   const { toggle: toggleSidebar } = useSidebar();
   const { t } = useParametres();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const pageNameKeys = {
     "/":           "nav.dashboard",
@@ -29,6 +35,28 @@ export function Header({ pathname }) {
 
   const titleKey = pageNameKeys[pathname];
   const title = titleKey ? t(titleKey) : "SIAD";
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handler(e) {
+      if (!dropdownRef.current?.contains(e.target)) setDropdownOpen(false);
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    navigate({ to: "/login" });
+  };
+
+  const roleColors = {
+    Administrateur: "bg-red-500",
+    Manager:        "bg-blue-500",
+    Analyste:       "bg-violet-500",
+    Consultant:     "bg-orange-500",
+    Auditeur:       "bg-teal-500",
+  };
 
   const iconBtn =
     "w-8 h-8 flex items-center justify-center rounded-lg text-text-muted hover:text-foreground hover:bg-surface-hover hover:scale-110 transition-all duration-200";
@@ -71,13 +99,75 @@ export function Header({ pathname }) {
 
         <NotificationBell />
 
-        <Link
-          to="/profil"
-          title={t("nav.profil")}
-          className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0 hover:bg-primary/90 hover:scale-110 transition-all duration-200 shadow-md shadow-primary/30"
-        >
-          AD
-        </Link>
+        {/* User avatar dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="flex items-center gap-1.5 rounded-lg hover:bg-surface-hover transition-all duration-200 pl-1 pr-1.5 py-1"
+            title={user ? `${user.prenom} ${user.nom}` : "Profil"}
+          >
+            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center text-white text-[11px] font-bold shadow-md shadow-primary/30">
+              {user?.initiales ?? "?"}
+            </div>
+            <ChevronDown
+              size={12}
+              className={`text-text-dim transition-transform duration-200 hidden sm:block ${dropdownOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+
+          {dropdownOpen && (
+            <div className="absolute right-0 top-full mt-2 w-56 bg-popover border border-border/70 rounded-xl shadow-2xl shadow-black/40 z-50 overflow-hidden">
+              {/* User info */}
+              <div className="px-4 py-3 border-b border-border/60">
+                <p className="text-[13px] font-semibold text-foreground">
+                  {user?.prenom} {user?.nom}
+                </p>
+                <p className="text-[11px] text-text-dim truncate mt-0.5">{user?.email}</p>
+                <div className="flex items-center gap-1.5 mt-2">
+                  <span className={`w-2 h-2 rounded-full ${roleColors[user?.role] ?? "bg-primary"}`} />
+                  <span className="text-[11px] text-text-dim">{user?.role}</span>
+                </div>
+              </div>
+
+              {/* Links */}
+              <div className="p-1.5">
+                <Link
+                  to="/profil"
+                  onClick={() => setDropdownOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-foreground hover:bg-surface-hover transition-colors"
+                >
+                  <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
+                    <span className="text-[10px] font-bold text-primary">{user?.initiales ?? "?"}</span>
+                  </div>
+                  Mon profil
+                </Link>
+                <Link
+                  to="/parametres"
+                  onClick={() => setDropdownOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-foreground hover:bg-surface-hover transition-colors"
+                >
+                  <div className="w-6 h-6 rounded-md bg-surface-hover flex items-center justify-center">
+                    <Sun size={12} className="text-text-dim" />
+                  </div>
+                  Paramètres
+                </Link>
+              </div>
+
+              {/* Logout */}
+              <div className="p-1.5 border-t border-border/60">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-red-400 hover:bg-red-500/10 transition-colors"
+                >
+                  <div className="w-6 h-6 rounded-md bg-red-500/10 flex items-center justify-center">
+                    <LogOut size={12} className="text-red-400" />
+                  </div>
+                  Déconnexion
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

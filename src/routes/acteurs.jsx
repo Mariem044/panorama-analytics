@@ -173,7 +173,7 @@ function ActeursPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* RFM scatter */}
-        <ChartCard title={`Matrice RFM clients${segment !== "Tous" ? ` — ${segment}` : ""} (KPI-22)`}>
+        <ChartCard key={`${segment}-${depot}`} title={`Matrice RFM clients${segment !== "Tous" ? ` — ${segment}` : ""} (KPI-22)`}>
           <ResponsiveContainer width="100%" height={chartH}>
             <ScatterChart margin={{ top: 10, right: 10, bottom: 20, left: 10 }}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />

@@ -180,7 +180,7 @@ function BanquePage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <ChartCard title={`Bordereaux${banque !== "Toutes" ? ` — ${banque}` : " par banque"}${modeBanque !== "Tous" ? ` — ${modeBanque}` : ""} (KPI-33)`}>
+        <ChartCard key={`${banque}-${modeBanque}-${activeIdx.join("")}`} title={`Bordereaux${banque !== "Toutes" ? ` — ${banque}` : " par banque"}${modeBanque !== "Tous" ? ` — ${modeBanque}` : ""} (KPI-33)`}>
           <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={banqueMode}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />

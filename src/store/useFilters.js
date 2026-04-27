@@ -1,18 +1,22 @@
 import { create } from "zustand";
 
-export const useFilters = create((set, get) => ({
+export const FILTER_DEFAULTS = {
   year: 2024,
   quarter: "Tous",
   month: "Tous",
   region: "Toutes",
   famille: "Toutes",
   segment: "Tous",
-  depot: "Tous", // ← was "Tous (8)", pages compare against "Tous"
+  depot: "Tous",
   banque: "Toutes",
   modeBanque: "Tous",
   modePaiement: "Tous",
   horizonPrev: "30j",
   statutArticle: "Tous",
+};
+
+export const useFilters = create((set, get) => ({
+  ...FILTER_DEFAULTS,
 
   setYear: (year) => set({ year }),
   setQuarter: (quarter) => set({ quarter }),
@@ -26,6 +30,7 @@ export const useFilters = create((set, get) => ({
   setModePaiement: (modePaiement) => set({ modePaiement }),
   setHorizonPrev: (horizonPrev) => set({ horizonPrev }),
   setStatutArticle: (statutArticle) => set({ statutArticle }),
+  resetAll: () => set({ ...FILTER_DEFAULTS }),
 
   getActiveMonthIndexes: () => {
     const { quarter } = get();

@@ -1,6 +1,7 @@
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useSidebar } from "@/store/useSidebar";
 import { useParametres } from "@/store/useParametres";
+import { useAuth } from "@/store/useAuth";
 import {
   X,
   LayoutDashboard,
@@ -15,24 +16,59 @@ import {
   HelpCircle,
   UserCircle,
   Sparkles,
+  LogOut,
+  ChevronRight,
 } from "lucide-react";
+
+const roleColors = {
+  Administrateur: "bg-red-500/20 text-red-400 border-red-500/30",
+  Manager:        "bg-blue-500/20 text-blue-400 border-blue-500/30",
+  Analyste:       "bg-violet-500/20 text-violet-400 border-violet-500/30",
+  Consultant:     "bg-orange-500/20 text-orange-400 border-orange-500/30",
+  Auditeur:       "bg-teal-500/20 text-teal-400 border-teal-500/30",
+};
+
+const avatarColors = {
+  Administrateur: "from-red-500/80 to-red-600/60",
+  Manager:        "from-blue-500/80 to-blue-600/60",
+  Analyste:       "from-violet-500/80 to-violet-600/60",
+  Consultant:     "from-orange-500/80 to-orange-600/60",
+  Auditeur:       "from-teal-500/80 to-teal-600/60",
+};
 
 export function Sidebar() {
   const location = useLocation();
   const path = location.pathname;
   const { open, setOpen } = useSidebar();
   const { t } = useParametres();
+  const { user, logout, canAccessRoute } = useAuth();
+  const navigate = useNavigate();
 
-  const navItems = [
-    { to: "/",          label: t("nav.dashboard"), icon: LayoutDashboard },
-    { to: "/ventes",    label: t("nav.ventes"),    icon: TrendingUp },
-    { to: "/tresorerie",label: t("nav.tresorerie"),icon: Wallet },
-    { to: "/produits",  label: t("nav.produits"),  icon: Boxes },
-    { to: "/acteurs",   label: t("nav.acteurs"),   icon: Users },
-    { to: "/fiscalite", label: t("nav.fiscalite"), icon: Receipt },
-    { to: "/caisse",    label: t("nav.caisse"),    icon: Banknote },
-    { to: "/banque",    label: t("nav.banque"),    icon: Landmark },
+  const handleLogout = () => {
+    logout();
+    navigate({ to: "/login" });
+  };
+
+  const allNavItems = [
+    { to: "/",           label: t("nav.dashboard"), icon: LayoutDashboard },
+    { to: "/ventes",     label: t("nav.ventes"),    icon: TrendingUp },
+    { to: "/tresorerie", label: t("nav.tresorerie"), icon: Wallet },
+    { to: "/produits",   label: t("nav.produits"),  icon: Boxes },
+    { to: "/acteurs",    label: t("nav.acteurs"),   icon: Users },
+    { to: "/fiscalite",  label: t("nav.fiscalite"), icon: Receipt },
+    { to: "/caisse",     label: t("nav.caisse"),    icon: Banknote },
+    { to: "/banque",     label: t("nav.banque"),    icon: Landmark },
   ];
+
+  // Filter nav items based on user's role permissions
+  const navItems = allNavItems.filter((item) => canAccessRoute(item.to));
+
+  const bottomItems = [
+    { to: "/assistant", label: t("nav.assistant"), icon: Sparkles },
+    { to: "/profil",    label: t("nav.profil"),    icon: UserCircle },
+    { to: "/parametres",label: t("nav.parametres"),icon: Settings },
+    { to: "/aide",      label: t("nav.aide"),      icon: HelpCircle },
+  ].filter((item) => canAccessRoute(item.to));
 
   return (
     <>
@@ -52,6 +88,7 @@ export function Sidebar() {
           backdrop-blur-sm
         `}
       >
+        {/* Logo */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-border">
           <div>
             <h1 className="text-[22px] leading-none font-extrabold text-foreground tracking-tight">
@@ -69,6 +106,7 @@ export function Sidebar() {
           </button>
         </div>
 
+        {/* Nav */}
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
           <p className="text-[10px] font-semibold text-text-dim uppercase tracking-widest px-3 mb-2">
             {t("nav.domains")}
@@ -103,55 +141,62 @@ export function Sidebar() {
           })}
         </nav>
 
+        {/* Bottom section */}
         <div className="border-t border-border px-3 py-3 space-y-0.5">
-          <Link
-            to="/assistant"
-            onClick={() => setOpen(false)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] w-full transition-colors border
-              ${path === "/assistant"
-                ? "bg-primary/10 text-primary border-primary/20"
-                : "text-text-muted hover:bg-surface-hover hover:text-foreground border-transparent"
-              }`}
-          >
-            <Sparkles size={16} className={path === "/assistant" ? "text-primary flex-shrink-0" : "text-text-dim flex-shrink-0"} />
-            {t("nav.assistant")}
-          </Link>
-          <Link
-            to="/profil"
-            onClick={() => setOpen(false)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] w-full transition-colors border
-              ${path === "/profil"
-                ? "bg-primary/10 text-primary border-primary/20"
-                : "text-text-muted hover:bg-surface-hover hover:text-foreground border-transparent"
-              }`}
-          >
-            <UserCircle size={16} className={path === "/profil" ? "text-primary flex-shrink-0" : "text-text-dim flex-shrink-0"} />
-            {t("nav.profil")}
-          </Link>
-          <Link
-            to="/parametres"
-            onClick={() => setOpen(false)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] w-full transition-colors border
-              ${path === "/parametres"
-                ? "bg-primary/10 text-primary border-primary/20"
-                : "text-text-muted hover:bg-surface-hover hover:text-foreground border-transparent"
-              }`}
-          >
-            <Settings size={16} className={path === "/parametres" ? "text-primary flex-shrink-0" : "text-text-dim flex-shrink-0"} />
-            {t("nav.parametres")}
-          </Link>
-          <Link
-            to="/aide"
-            onClick={() => setOpen(false)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] w-full transition-colors border
-              ${path === "/aide"
-                ? "bg-primary/10 text-primary border-primary/20"
-                : "text-text-muted hover:bg-surface-hover hover:text-foreground border-transparent"
-              }`}
-          >
-            <HelpCircle size={16} className={path === "/aide" ? "text-primary flex-shrink-0" : "text-text-dim flex-shrink-0"} />
-            {t("nav.aide")}
-          </Link>
+          {bottomItems.map((item) => {
+            const active = path === item.to;
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                onClick={() => setOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] w-full transition-colors border
+                  ${active
+                    ? "bg-primary/10 text-primary border-primary/20"
+                    : "text-text-muted hover:bg-surface-hover hover:text-foreground border-transparent"
+                  }`}
+              >
+                <item.icon size={16} className={active ? "text-primary flex-shrink-0" : "text-text-dim flex-shrink-0"} />
+                {item.label}
+              </Link>
+            );
+          })}
+
+          {/* Logged-in user card */}
+          {user && (
+            <div className="mt-2 pt-2 border-t border-border/60">
+              <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-surface-hover/50 border border-border/40">
+                {/* Avatar */}
+                <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${avatarColors[user.role] ?? "from-primary/80 to-primary/60"} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                  {user.avatar ? (
+                    <img src={user.avatar} alt={user.initiales} className="w-full h-full object-cover rounded-lg" />
+                  ) : (
+                    <span className="text-[11px] font-bold text-white">{user.initiales}</span>
+                  )}
+                </div>
+
+                {/* Name + role */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-semibold text-foreground truncate">
+                    {user.prenom} {user.nom}
+                  </p>
+                  <span className={`inline-flex items-center text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${roleColors[user.role] ?? "bg-primary/20 text-primary border-primary/30"}`}>
+                    {user.role}
+                  </span>
+                </div>
+
+                {/* Logout button */}
+                <button
+                  onClick={handleLogout}
+                  title="Déconnexion"
+                  className="w-7 h-7 flex items-center justify-center rounded-lg text-text-dim hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 flex-shrink-0"
+                >
+                  <LogOut size={13} />
+                </button>
+              </div>
+            </div>
+          )}
+
           <p className="text-[10px] text-[#444] px-3 pt-1">{t("common.version")}</p>
         </div>
       </aside>

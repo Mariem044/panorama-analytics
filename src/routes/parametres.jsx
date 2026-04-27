@@ -16,11 +16,28 @@ function ParametresPage() {
     t,
   } = useParametres();
 
+  const [draft, setDraft] = useState({
+    langue,
+    devise,
+    notifImpayes,
+    notifRapports,
+    notifSystem,
+  });
+
   const [saved, setSaved] = useState(false);
 
   function handleSave() {
+    setLangue(draft.langue);
+    setDevise(draft.devise);
+    setNotifImpayes(draft.notifImpayes);
+    setNotifRapports(draft.notifRapports);
+    setNotifSystem(draft.notifSystem);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  }
+
+  function handleCancel() {
+    setDraft({ langue, devise, notifImpayes, notifRapports, notifSystem });
   }
 
   return (
@@ -37,8 +54,8 @@ function ParametresPage() {
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">{t("params.langue")}</label>
                 <select
-                  value={langue}
-                  onChange={(e) => setLangue(e.target.value)}
+                  value={draft.langue}
+                  onChange={(e) => setDraft({ ...draft, langue: e.target.value })}
                   className="w-full px-3 py-2 bg-secondary border border-border rounded-lg text-foreground focus:border-primary outline-none"
                 >
                   <option>Français</option>
@@ -49,8 +66,8 @@ function ParametresPage() {
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">{t("params.devise")}</label>
                 <select
-                  value={devise}
-                  onChange={(e) => setDevise(e.target.value)}
+                  value={draft.devise}
+                  onChange={(e) => setDraft({ ...draft, devise: e.target.value })}
                   className="w-full px-3 py-2 bg-secondary border border-border rounded-lg text-foreground focus:border-primary outline-none"
                 >
                   <option>TND - Dinar Tunisien</option>
@@ -70,8 +87,8 @@ function ParametresPage() {
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={notifImpayes}
-                  onChange={(e) => setNotifImpayes(e.target.checked)}
+                  checked={draft.notifImpayes}
+                  onChange={(e) => setDraft({ ...draft, notifImpayes: e.target.checked })}
                   className="rounded"
                 />
                 <span className="text-sm text-foreground">{t("params.notifImpayes")}</span>
@@ -79,8 +96,8 @@ function ParametresPage() {
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={notifRapports}
-                  onChange={(e) => setNotifRapports(e.target.checked)}
+                  checked={draft.notifRapports}
+                  onChange={(e) => setDraft({ ...draft, notifRapports: e.target.checked })}
                   className="rounded"
                 />
                 <span className="text-sm text-foreground">{t("params.notifRapports")}</span>
@@ -88,8 +105,8 @@ function ParametresPage() {
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={notifSystem}
-                  onChange={(e) => setNotifSystem(e.target.checked)}
+                  checked={draft.notifSystem}
+                  onChange={(e) => setDraft({ ...draft, notifSystem: e.target.checked })}
                   className="rounded"
                 />
                 <span className="text-sm text-foreground">{t("params.notifSystem")}</span>
@@ -109,12 +126,16 @@ function ParametresPage() {
 
           {/* Actions */}
           <div className="flex items-center justify-between pt-4">
-            {saved && (
+            {saved ? (
               <span className="text-sm text-green-400 font-medium">{t("params.saved")}</span>
+            ) : (
+              <span />
             )}
-            {!saved && <span />}
             <div className="flex gap-3">
-              <button className="px-4 py-2 border border-border rounded-lg text-foreground hover:bg-secondary transition-colors">
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 border border-border rounded-lg text-foreground hover:bg-secondary transition-colors"
+              >
                 {t("params.cancel")}
               </button>
               <button
@@ -125,6 +146,7 @@ function ParametresPage() {
               </button>
             </div>
           </div>
+
         </div>
       </div>
     </div>

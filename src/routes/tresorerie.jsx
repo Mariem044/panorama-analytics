@@ -94,7 +94,7 @@ function TresorerietPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <ChartCard title={`Encaissements par mode — MAG vs GRT${modePaiement !== "Tous" ? ` (${modePaiement})` : ""} (KPI-07)`}>
+        <ChartCard key={`${modePaiement}-${horizonPrev}-${activeIdx.join("")}`} title={`Encaissements par mode — MAG vs GRT${modePaiement !== "Tous" ? ` (${modePaiement})` : ""} (KPI-07)`}>
           <div className="grid grid-cols-2 gap-2 h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>

@@ -130,7 +130,7 @@ function ProduitsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <ChartCard title={`Valeur stock par famille${famille !== "Toutes" ? ` — ${famille}` : ""} (KPI-13)`}>
+        <ChartCard key={`${famille}-${statutArticle}-${horizonPrev}`} title={`Valeur stock par famille${famille !== "Toutes" ? ` — ${famille}` : ""} (KPI-13)`}>
           <ResponsiveContainer width="100%" height={chartH}>
             <Treemap
               data={treemapData}

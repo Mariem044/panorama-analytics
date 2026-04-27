@@ -39,15 +39,30 @@ const DOMAIN_EXTRA = {
   ],
 };
 
-function SelectFilter({ label, value, onChange, options, icon: Icon }) {
+/**
+ * SelectFilter — labelled filter control.
+ *
+ * Uses a visually-hidden <label> tied to the <select> by id so screen readers
+ * announce "Period, Q1 2024" instead of just "Q1 2024".
+ * The icon + visible label text are aria-hidden because the <label> already
+ * carries the accessible name.
+ */
+function SelectFilter({ label, value, onChange, options, icon: Icon, id }) {
+  const selectId = id || `filter-${label.replace(/\s+/g, "-").toLowerCase()}`;
   return (
     <div className="flex items-center gap-1.5 bg-surface-hover/60 border border-border/60 rounded-lg px-2.5 py-1.5 min-w-0">
-      {Icon && <Icon size={12} className="text-text-dim flex-shrink-0" />}
-      <span className="text-[10px] text-text-dim font-medium whitespace-nowrap hidden sm:block">{label}:</span>
+      {Icon && <Icon size={12} className="text-text-dim flex-shrink-0" aria-hidden="true" />}
+      {/* Visible label — hidden from AT since the <label> element below handles the name */}
+      <span className="text-[10px] text-text-dim font-medium whitespace-nowrap hidden sm:block" aria-hidden="true">
+        {label}:
+      </span>
+      {/* Visually-hidden label for AT */}
+      <label htmlFor={selectId} className="sr-only">{label}</label>
       <select
+        id={selectId}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="bg-transparent text-[11px] text-foreground font-medium outline-none cursor-pointer min-w-0 max-w-[110px] sm:max-w-none truncate"
+        className="bg-transparent text-[11px] text-foreground font-medium outline-none cursor-pointer min-w-0 max-w-[110px] sm:max-w-none truncate focus:ring-2 focus:ring-primary/50 focus:ring-offset-1 rounded"
       >
         {options.map((o) => (
           <option key={o} value={o} className="bg-background">
@@ -68,7 +83,6 @@ export function FiltersBar() {
   const extraDefs  = DOMAIN_EXTRA[path] || [];
   const [expanded, setExpanded] = useState(false);
 
-  // Pick period labels based on language
   const langKey = langue === "English" ? "label_en" : langue === "العربية" ? "label_ar" : "label";
   const periodLabels = PERIODS_FR.map((p) => p[langKey]);
 
@@ -85,6 +99,7 @@ export function FiltersBar() {
   const allFilters = (
     <>
       <SelectFilter
+        id="filter-period"
         label={t("filters.period")}
         value={currentPeriodLabel}
         onChange={handlePeriodChange}
@@ -92,6 +107,7 @@ export function FiltersBar() {
         icon={Calendar}
       />
       <SelectFilter
+        id="filter-depot"
         label={t("filters.depot")}
         value={filters.depot}
         onChange={filters.setDepot}
@@ -100,6 +116,7 @@ export function FiltersBar() {
       />
       {!extraDefs.some((d) => d.storeKey === "segment") && (
         <SelectFilter
+          id="filter-segment"
           label={t("filters.segment")}
           value={filters.segment}
           onChange={filters.setSegment}
@@ -108,6 +125,7 @@ export function FiltersBar() {
         />
       )}
       <SelectFilter
+        id="filter-source"
         label={t("filters.source")}
         value="MAG_2020 + GRT_MAG"
         onChange={() => {}}
@@ -117,6 +135,7 @@ export function FiltersBar() {
       {extraDefs.map((def) => (
         <SelectFilter
           key={def.storeKey}
+          id={`filter-${def.storeKey}`}
           label={t(def.labelKey)}
           value={filters[def.storeKey]}
           onChange={(v) => {
@@ -131,16 +150,27 @@ export function FiltersBar() {
 
   if (isMobile) {
     return (
-      <div className="mb-4 border border-border/40 rounded-xl bg-background/40 backdrop-blur-sm sticky top-14 z-20">
+      <div
+        className="mb-4 border border-border/40 rounded-xl bg-background/40 backdrop-blur-sm sticky top-14 z-20"
+        role="search"
+        aria-label={t("filters.label")}
+      >
         <button
           onClick={() => setExpanded(!expanded)}
           className="w-full flex items-center justify-between px-3 py-2.5"
+          aria-expanded={expanded}
+          aria-controls="filters-panel"
         >
           <div className="flex items-center gap-2 text-text-dim">
-            <Filter size={13} />
-            <span className="text-[10px] font-semibold uppercase tracking-wider">{t("filters.label")}</span>
+            <Filter size={13} aria-hidden="true" />
+            <span className="text-[10px] font-semibold uppercase tracking-wider">
+              {t("filters.label")}
+            </span>
             {filters.quarter !== "Tous" && (
-              <span className="text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-bold">
+              <span
+                className="text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-bold"
+                aria-label={`Active filter: ${filters.quarter}`}
+              >
                 {filters.quarter}
               </span>
             )}
@@ -148,25 +178,35 @@ export function FiltersBar() {
           <ChevronDown
             size={14}
             className={`text-text-dim transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+            aria-hidden="true"
           />
         </button>
 
         {expanded && (
-          <div className="px-3 pb-3 pt-1 border-t border-border/40 flex flex-wrap gap-2">
+          <fieldset
+            id="filters-panel"
+            className="px-3 pb-3 pt-1 border-t border-border/40 flex flex-wrap gap-2"
+          >
+            <legend className="sr-only">{t("filters.label")}</legend>
             {allFilters}
-          </div>
+          </fieldset>
         )}
       </div>
     );
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2 px-3 py-2 mb-4 border border-border/40 rounded-xl bg-background/40 backdrop-blur-sm sticky top-16 z-20">
-      <div className="flex items-center gap-1.5 text-text-dim pr-2 border-r border-border/60 flex-shrink-0">
+    <fieldset
+      className="flex flex-wrap items-center gap-2 px-3 py-2 mb-4 border border-border/40 rounded-xl bg-background/40 backdrop-blur-sm sticky top-16 z-20"
+      role="search"
+      aria-label={t("filters.label")}
+    >
+      <legend className="sr-only">{t("filters.label")}</legend>
+      <div className="flex items-center gap-1.5 text-text-dim pr-2 border-r border-border/60 flex-shrink-0" aria-hidden="true">
         <Filter size={13} />
         <span className="text-[10px] font-semibold uppercase tracking-wider">{t("filters.label")}</span>
       </div>
       {allFilters}
-    </div>
+    </fieldset>
   );
 }

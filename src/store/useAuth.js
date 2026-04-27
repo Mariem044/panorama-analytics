@@ -69,28 +69,28 @@ export const ROLE_PERMISSIONS = {
     canEditUsers: false,
     canExport: true,
     canChangeSettings: false,
-    routes: ["/", "/ventes", "/tresorerie", "/produits", "/acteurs", "/caisse", "/banque", "/assistant", "/profil", "/aide"],
+    routes: ["/", "/ventes", "/tresorerie", "/produits", "/acteurs", "/caisse", "/banque", "/assistant", "/profil", "/aide", "/parametres"],
   },
   Analyste: {
     canViewAll: false,
     canEditUsers: false,
     canExport: true,
     canChangeSettings: false,
-    routes: ["/", "/ventes", "/tresorerie", "/produits", "/acteurs", "/fiscalite", "/ecritures", "/assistant", "/profil", "/aide"],
+    routes: ["/", "/ventes", "/tresorerie", "/produits", "/acteurs", "/fiscalite", "/ecritures", "/assistant", "/profil", "/aide", "/parametres"],
   },
   Consultant: {
     canViewAll: false,
     canEditUsers: false,
     canExport: false,
     canChangeSettings: false,
-    routes: ["/", "/ventes", "/acteurs", "/profil", "/aide"],
+    routes: ["/", "/ventes", "/acteurs", "/profil", "/aide", "/parametres"],
   },
   Auditeur: {
     canViewAll: false,
     canEditUsers: false,
     canExport: true,
     canChangeSettings: false,
-    routes: ["/", "/fiscalite", "/ecritures", "/banque", "/profil", "/aide"],
+    routes: ["/", "/fiscalite", "/ecritures", "/banque", "/profil", "/aide", "/parametres"],
   },
 };
 

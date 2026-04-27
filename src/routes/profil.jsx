@@ -16,7 +16,11 @@ import {
   EyeOff,
   Trash2,
   Edit3,
+  Shield,
+  LogOut,
 } from "lucide-react";
+import { useAuth, ROLE_PERMISSIONS } from "@/store/useAuth";
+import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/profil")({
   component: ProfilPage,
@@ -24,20 +28,6 @@ export const Route = createFileRoute("/profil")({
 
 const ROLES = ["Administrateur", "Manager", "Analyste", "Consultant", "Auditeur"];
 const DEPARTMENTS = ["Finance", "Commercial", "Logistique", "IT", "Direction", "Comptabilité"];
-
-const INITIAL_PROFILE = {
-  prenom: "Ahmed",
-  nom: "Dridi",
-  email: "ahmed.dridi@magdistribution.tn",
-  telephone: "+216 98 765 432",
-  poste: "Responsable Financier",
-  departement: "Finance",
-  role: "Administrateur",
-  localisation: "Tunis, Tunisie",
-  bio: "Responsable de l'analyse financière et du suivi des KPIs pour MAG Distribution.",
-  avatar: null,
-  initiales: "AD",
-};
 
 function Toast({ message, type, onClose }) {
   return (
@@ -96,6 +86,7 @@ function StrengthBar({ password }) {
   })();
   const labels = ["", "Faible", "Moyen", "Fort", "Très fort"];
   const colors = ["", "bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-green-500"];
+  const textColors = ["", "text-red-400", "text-orange-400", "text-yellow-400", "text-green-400"];
   return password ? (
     <div className="mt-2">
       <div className="flex gap-1">
@@ -108,25 +99,44 @@ function StrengthBar({ password }) {
           />
         ))}
       </div>
-      <p className={`text-[11px] mt-1 ${colors[strength].replace("bg-", "text-")}`}>
-        {labels[strength]}
-      </p>
+      <p className={`text-[11px] mt-1 ${textColors[strength]}`}>{labels[strength]}</p>
     </div>
   ) : null;
 }
 
+function RoleBadge({ role }) {
+  const colors = {
+    Administrateur: "bg-red-500/15 border-red-500/25 text-red-400",
+    Manager: "bg-blue-500/15 border-blue-500/25 text-blue-400",
+    Analyste: "bg-violet-500/15 border-violet-500/25 text-violet-400",
+    Consultant: "bg-orange-500/15 border-orange-500/25 text-orange-400",
+    Auditeur: "bg-teal-500/15 border-teal-500/25 text-teal-400",
+  };
+  return (
+    <span className={`px-2.5 py-0.5 rounded-full border text-[11px] font-semibold ${colors[role] || "bg-primary/15 border-primary/25 text-primary"}`}>
+      {role}
+    </span>
+  );
+}
+
 function ProfilPage() {
-  const [profile, setProfile] = useState(INITIAL_PROFILE);
+  const { user, updateProfile, changePassword, logout, hasPermission } = useAuth();
+  const navigate = useNavigate();
+
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(INITIAL_PROFILE);
+  const [draft, setDraft] = useState(null);
   const [toast, setToast] = useState(null);
   const [activeTab, setActiveTab] = useState("info");
   const [avatarPreview, setAvatarPreview] = useState(null);
+  const [pwLoading, setPwLoading] = useState(false);
 
   // Password state
   const [pwForm, setPwForm] = useState({ current: "", nouveau: "", confirm: "" });
+  const [pwError, setPwError] = useState("");
 
   const fileRef = useRef(null);
+
+  if (!user) return null;
 
   const showToast = (message, type = "success") => {
     setToast({ message, type });
@@ -134,17 +144,18 @@ function ProfilPage() {
   };
 
   const handleEdit = () => {
-    setDraft({ ...profile });
+    setDraft({ ...user });
     setEditing(true);
   };
 
   const handleCancel = () => {
     setEditing(false);
+    setDraft(null);
     setAvatarPreview(null);
   };
 
   const handleSave = () => {
-    if (!draft.prenom.trim() || !draft.nom.trim() || !draft.email.trim()) {
+    if (!draft.prenom?.trim() || !draft.nom?.trim() || !draft.email?.trim()) {
       showToast("Prénom, nom et email sont obligatoires", "error");
       return;
     }
@@ -152,8 +163,9 @@ function ProfilPage() {
       showToast("Adresse email invalide", "error");
       return;
     }
-    setProfile({ ...draft, avatar: avatarPreview ?? profile.avatar });
+    updateProfile({ ...draft, avatar: avatarPreview ?? user.avatar });
     setEditing(false);
+    setDraft(null);
     setAvatarPreview(null);
     showToast("Profil mis à jour avec succès");
   };
@@ -170,39 +182,63 @@ function ProfilPage() {
     reader.readAsDataURL(file);
   };
 
-  const handleRemoveAvatar = () => {
-    setAvatarPreview(null);
-    if (editing) setDraft({ ...draft });
-    else setProfile({ ...profile, avatar: null });
-  };
-
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
+    setPwError("");
     if (!pwForm.current) {
-      showToast("Mot de passe actuel requis", "error");
+      setPwError("Mot de passe actuel requis");
       return;
     }
     if (pwForm.nouveau.length < 8) {
-      showToast("Le nouveau mot de passe doit avoir au moins 8 caractères", "error");
+      setPwError("Le nouveau mot de passe doit avoir au moins 8 caractères");
+      return;
+    }
+    if (!/[A-Z]/.test(pwForm.nouveau)) {
+      setPwError("Le mot de passe doit contenir au moins une majuscule");
+      return;
+    }
+    if (!/[0-9]/.test(pwForm.nouveau)) {
+      setPwError("Le mot de passe doit contenir au moins un chiffre");
       return;
     }
     if (pwForm.nouveau !== pwForm.confirm) {
-      showToast("Les mots de passe ne correspondent pas", "error");
+      setPwError("Les mots de passe ne correspondent pas");
       return;
     }
-    setPwForm({ current: "", nouveau: "", confirm: "" });
-    showToast("Mot de passe modifié avec succès");
+
+    setPwLoading(true);
+    const result = await changePassword(pwForm.current, pwForm.nouveau);
+    setPwLoading(false);
+
+    if (result.success) {
+      setPwForm({ current: "", nouveau: "", confirm: "" });
+      showToast("Mot de passe modifié avec succès");
+    } else {
+      setPwError(result.error);
+    }
   };
+
+  const handleLogout = () => {
+    logout();
+    navigate({ to: "/login" });
+  };
+
+  const currentData = editing ? draft : user;
+  const currentAvatar = editing ? avatarPreview ?? user.avatar : user.avatar;
+  const permissions = ROLE_PERMISSIONS[user.role] || {};
 
   const field = (key, label, icon, type = "text", options = null) => {
     const Icon = icon;
-    const val = editing ? draft[key] : profile[key];
+    const val = currentData?.[key] ?? "";
+    // Only admins can change roles
+    const readOnly = key === "role" && !hasPermission("canEditUsers");
+
     return (
       <div>
         <label className="flex items-center gap-1.5 text-[11px] font-semibold text-text-dim uppercase tracking-wider mb-1.5">
           <Icon size={11} />
           {label}
         </label>
-        {editing ? (
+        {editing && !readOnly ? (
           options ? (
             <select
               value={val}
@@ -224,15 +260,22 @@ function ProfilPage() {
             />
           )
         ) : (
-          <p className="px-3 py-2.5 bg-surface/50 border border-border/50 rounded-lg text-[13px] text-foreground">
-            {val || <span className="text-text-dim italic">Non renseigné</span>}
-          </p>
+          <div className="flex items-center gap-2">
+            {key === "role" ? (
+              <RoleBadge role={val} />
+            ) : (
+              <p className="px-3 py-2.5 bg-surface/50 border border-border/50 rounded-lg text-[13px] text-foreground flex-1">
+                {val || <span className="text-text-dim italic">Non renseigné</span>}
+              </p>
+            )}
+            {key === "role" && readOnly && (
+              <span className="text-[10px] text-text-dim">(non modifiable)</span>
+            )}
+          </div>
         )}
       </div>
     );
   };
-
-  const currentAvatar = editing ? avatarPreview ?? profile.avatar : profile.avatar;
 
   return (
     <div className="max-w-4xl space-y-6">
@@ -248,9 +291,7 @@ function ProfilPage() {
             {currentAvatar ? (
               <img src={currentAvatar} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-3xl font-bold text-primary">
-                {profile.initiales}
-              </span>
+              <span className="text-3xl font-bold text-primary">{user.initiales}</span>
             )}
           </div>
           {editing && (
@@ -263,7 +304,7 @@ function ProfilPage() {
               </button>
               {currentAvatar && (
                 <button
-                  onClick={handleRemoveAvatar}
+                  onClick={() => setAvatarPreview(null)}
                   className="w-7 h-7 rounded-lg bg-red-500/80 flex items-center justify-center shadow-lg hover:bg-red-500 transition-colors"
                 >
                   <Trash2 size={11} className="text-white" />
@@ -271,37 +312,31 @@ function ProfilPage() {
               )}
             </div>
           )}
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleAvatarChange}
-          />
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
         </div>
 
         {/* Info */}
         <div className="flex-1 min-w-0">
           <h1 className="text-2xl font-bold text-foreground">
-            {profile.prenom} {profile.nom}
+            {user.prenom} {user.nom}
           </h1>
-          <p className="text-[13px] text-text-dim mt-0.5">{profile.poste} · {profile.departement}</p>
-          <div className="flex items-center gap-2 mt-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-primary/15 border border-primary/25 text-[11px] font-semibold text-primary">
-              {profile.role}
-            </span>
+          <p className="text-[13px] text-text-dim mt-0.5">
+            {user.poste} · {user.departement}
+          </p>
+          <div className="flex items-center gap-2 mt-2 flex-wrap">
+            <RoleBadge role={user.role} />
             <span className="text-[12px] text-text-dim flex items-center gap-1">
               <MapPin size={11} />
-              {profile.localisation}
+              {user.localisation}
             </span>
           </div>
-          {profile.bio && (
-            <p className="text-[12px] text-text-dim mt-3 max-w-lg leading-relaxed">{profile.bio}</p>
+          {user.bio && (
+            <p className="text-[12px] text-text-dim mt-3 max-w-lg leading-relaxed">{user.bio}</p>
           )}
         </div>
 
         {/* Actions */}
-        <div className="flex items-start gap-2 flex-shrink-0">
+        <div className="flex items-start gap-2 flex-shrink-0 flex-wrap">
           {editing ? (
             <>
               <button
@@ -320,13 +355,22 @@ function ProfilPage() {
               </button>
             </>
           ) : (
-            <button
-              onClick={handleEdit}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-primary/30 bg-primary/10 text-primary text-[12px] font-medium hover:bg-primary/20 transition-colors"
-            >
-              <Edit3 size={14} />
-              Modifier
-            </button>
+            <>
+              <button
+                onClick={handleEdit}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-primary/30 bg-primary/10 text-primary text-[12px] font-medium hover:bg-primary/20 transition-colors"
+              >
+                <Edit3 size={14} />
+                Modifier
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-border text-[12px] font-medium text-text-dim hover:text-red-400 hover:border-red-500/30 hover:bg-red-500/5 transition-colors"
+              >
+                <LogOut size={14} />
+                Déconnexion
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -336,6 +380,7 @@ function ProfilPage() {
         {[
           { id: "info", label: "Informations" },
           { id: "securite", label: "Sécurité" },
+          { id: "permissions", label: "Permissions" },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -351,9 +396,9 @@ function ProfilPage() {
         ))}
       </div>
 
+      {/* ── Tab: Info ── */}
       {activeTab === "info" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Personal info */}
           <div className="bg-gradient-to-br from-card to-card/95 border border-border/60 rounded-2xl p-5 space-y-4">
             <h2 className="text-[13px] font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
               <User size={14} className="text-primary" />
@@ -364,7 +409,6 @@ function ProfilPage() {
             {field("email", "Email", Mail, "email")}
             {field("telephone", "Téléphone", Phone, "tel")}
             {field("localisation", "Localisation", MapPin)}
-            {/* Bio */}
             <div>
               <label className="flex items-center gap-1.5 text-[11px] font-semibold text-text-dim uppercase tracking-wider mb-1.5">
                 <Edit3 size={11} />
@@ -372,20 +416,19 @@ function ProfilPage() {
               </label>
               {editing ? (
                 <textarea
-                  value={draft.bio}
+                  value={draft?.bio ?? ""}
                   onChange={(e) => setDraft({ ...draft, bio: e.target.value })}
                   rows={3}
                   className="w-full px-3 py-2.5 bg-secondary border border-border rounded-lg text-[13px] text-foreground focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none transition-colors resize-none"
                 />
               ) : (
                 <p className="px-3 py-2.5 bg-surface/50 border border-border/50 rounded-lg text-[13px] text-foreground min-h-[70px] leading-relaxed">
-                  {profile.bio || <span className="text-text-dim italic">Non renseigné</span>}
+                  {user.bio || <span className="text-text-dim italic">Non renseigné</span>}
                 </p>
               )}
             </div>
           </div>
 
-          {/* Professional info */}
           <div className="bg-gradient-to-br from-card to-card/95 border border-border/60 rounded-2xl p-5 space-y-4">
             <h2 className="text-[13px] font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
               <Building2 size={14} className="text-primary" />
@@ -393,9 +436,8 @@ function ProfilPage() {
             </h2>
             {field("poste", "Poste", Building2)}
             {field("departement", "Département", Building2, "text", DEPARTMENTS)}
-            {field("role", "Rôle système", Lock, "text", ROLES)}
+            {field("role", "Rôle système", Lock, "text", hasPermission("canEditUsers") ? ROLES : null)}
 
-            {/* Activity summary */}
             <div className="mt-4 pt-4 border-t border-border/50">
               <p className="text-[11px] font-semibold text-text-dim uppercase tracking-wider mb-3">
                 Activité récente
@@ -404,7 +446,6 @@ function ProfilPage() {
                 { label: "Dernière connexion", value: "Aujourd'hui, 09:14" },
                 { label: "Sessions actives", value: "1 session" },
                 { label: "Compte créé", value: "15 Jan 2024" },
-                { label: "Dernière modification", value: "12 Mar 2024" },
               ].map((item) => (
                 <div
                   key={item.label}
@@ -419,43 +460,74 @@ function ProfilPage() {
         </div>
       )}
 
+      {/* ── Tab: Sécurité ── */}
       {activeTab === "securite" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Change password */}
           <div className="bg-gradient-to-br from-card to-card/95 border border-border/60 rounded-2xl p-5 space-y-4">
             <h2 className="text-[13px] font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
               <Lock size={14} className="text-primary" />
               Changer le mot de passe
             </h2>
+
+            {pwError && (
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-[12px]">
+                <AlertCircle size={14} className="flex-shrink-0" />
+                {pwError}
+              </div>
+            )}
+
             <PasswordField
               label="Mot de passe actuel"
               value={pwForm.current}
-              onChange={(v) => setPwForm({ ...pwForm, current: v })}
+              onChange={(v) => { setPwForm({ ...pwForm, current: v }); setPwError(""); }}
               placeholder="••••••••"
             />
             <PasswordField
               label="Nouveau mot de passe"
               value={pwForm.nouveau}
-              onChange={(v) => setPwForm({ ...pwForm, nouveau: v })}
-              placeholder="Min. 8 caractères"
+              onChange={(v) => { setPwForm({ ...pwForm, nouveau: v }); setPwError(""); }}
+              placeholder="Min. 8 car., 1 maj., 1 chiffre"
             />
             <StrengthBar password={pwForm.nouveau} />
             <PasswordField
               label="Confirmer le mot de passe"
               value={pwForm.confirm}
-              onChange={(v) => setPwForm({ ...pwForm, confirm: v })}
+              onChange={(v) => { setPwForm({ ...pwForm, confirm: v }); setPwError(""); }}
               placeholder="Répétez le mot de passe"
             />
+
             <button
               onClick={handlePasswordChange}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary text-white text-[13px] font-semibold hover:bg-primary/90 transition-colors shadow-md shadow-primary/25 mt-2"
+              disabled={pwLoading}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary text-white text-[13px] font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md shadow-primary/25 mt-2"
             >
-              <Lock size={14} />
-              Mettre à jour le mot de passe
+              {pwLoading ? (
+                <span className="animate-pulse">Mise à jour…</span>
+              ) : (
+                <>
+                  <Lock size={14} />
+                  Mettre à jour le mot de passe
+                </>
+              )}
             </button>
+
+            <div className="pt-2 border-t border-border/50">
+              <p className="text-[11px] text-text-dim font-semibold uppercase tracking-wider mb-2">
+                Règles
+              </p>
+              {[
+                "Minimum 8 caractères",
+                "Au moins une lettre majuscule",
+                "Au moins un chiffre",
+              ].map((r) => (
+                <p key={r} className="text-[11px] text-text-dim flex items-center gap-1.5 mb-1">
+                  <span className="w-1 h-1 rounded-full bg-text-dim" />
+                  {r}
+                </p>
+              ))}
+            </div>
           </div>
 
-          {/* Security info */}
           <div className="bg-gradient-to-br from-card to-card/95 border border-border/60 rounded-2xl p-5 space-y-4">
             <h2 className="text-[13px] font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
               <CheckCircle size={14} className="text-primary" />
@@ -466,10 +538,7 @@ function ProfilPage() {
               { label: "Connexions suspectes", status: "Aucune détectée", color: "text-green-400", bg: "bg-green-500/10 border-green-500/20" },
               { label: "Niveau de sécurité", status: "Moyen", color: "text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/20" },
             ].map((item) => (
-              <div
-                key={item.label}
-                className={`flex items-center justify-between px-3 py-2.5 rounded-lg border ${item.bg}`}
-              >
+              <div key={item.label} className={`flex items-center justify-between px-3 py-2.5 rounded-lg border ${item.bg}`}>
                 <span className="text-[12px] text-foreground">{item.label}</span>
                 <span className={`text-[11px] font-semibold ${item.color}`}>{item.status}</span>
               </div>
@@ -477,7 +546,7 @@ function ProfilPage() {
 
             <div className="mt-2 pt-4 border-t border-border/50">
               <p className="text-[11px] font-semibold text-text-dim uppercase tracking-wider mb-3">
-                Sessions actives
+                Session active
               </p>
               <div className="flex items-center justify-between p-3 bg-surface/50 rounded-lg border border-border/50">
                 <div>
@@ -488,11 +557,73 @@ function ProfilPage() {
               </div>
             </div>
 
-            <div className="mt-2 pt-4 border-t border-border/50">
-              <button className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-[12px] font-semibold hover:bg-red-500/20 transition-colors">
-                <Trash2 size={13} />
-                Déconnecter toutes les sessions
-              </button>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-[12px] font-semibold hover:bg-red-500/20 transition-colors"
+            >
+              <LogOut size={13} />
+              Déconnexion
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Tab: Permissions ── */}
+      {activeTab === "permissions" && (
+        <div className="bg-gradient-to-br from-card to-card/95 border border-border/60 rounded-2xl p-5">
+          <h2 className="text-[13px] font-bold text-foreground uppercase tracking-wider flex items-center gap-2 mb-5">
+            <Shield size={14} className="text-primary" />
+            Permissions du rôle — <RoleBadge role={user.role} />
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Capabilities */}
+            <div>
+              <p className="text-[11px] font-semibold text-text-dim uppercase tracking-wider mb-3">
+                Capacités
+              </p>
+              <div className="space-y-2">
+                {[
+                  { key: "canViewAll", label: "Accès à tous les modules" },
+                  { key: "canEditUsers", label: "Gestion des utilisateurs" },
+                  { key: "canExport", label: "Export des données" },
+                  { key: "canChangeSettings", label: "Modification des paramètres" },
+                ].map((p) => (
+                  <div key={p.key} className="flex items-center justify-between py-2 border-b border-border/30 last:border-0">
+                    <span className="text-[12px] text-foreground">{p.label}</span>
+                    {permissions[p.key] ? (
+                      <span className="flex items-center gap-1 text-[11px] font-semibold text-green-400">
+                        <CheckCircle size={12} /> Autorisé
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-[11px] font-semibold text-text-dim">
+                        <X size={12} /> Refusé
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Accessible routes */}
+            <div>
+              <p className="text-[11px] font-semibold text-text-dim uppercase tracking-wider mb-3">
+                Pages accessibles
+              </p>
+              <div className="space-y-1.5">
+                {permissions.routes?.includes("*") ? (
+                  <p className="text-[12px] text-green-400 font-medium flex items-center gap-1.5">
+                    <CheckCircle size={13} /> Accès complet à toutes les pages
+                  </p>
+                ) : (
+                  permissions.routes?.map((route) => (
+                    <div key={route} className="flex items-center gap-2 text-[12px] text-foreground">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+                      <span className="font-mono text-[11px] bg-secondary px-2 py-0.5 rounded">{route}</span>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>

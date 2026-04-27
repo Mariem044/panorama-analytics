@@ -1,10 +1,15 @@
-import { Link, createRootRoute } from "@tanstack/react-router";
+import { Link, createRootRoute, useNavigate, useLocation } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { applyStoredTheme } from "@/store/useTheme";
 import { applyStoredLanguage } from "@/store/useParametres";
+import { useAuth } from "@/store/useAuth";
 
 applyStoredTheme();
 applyStoredLanguage();
+
+const PUBLIC_ROUTES = ["/login"];
 
 function NotFoundComponent() {
   return (
@@ -28,11 +33,40 @@ function NotFoundComponent() {
   );
 }
 
+function RootComponent() {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isPublic = PUBLIC_ROUTES.includes(location.pathname);
+
+  // Redirect authenticated users away from login
+  useEffect(() => {
+    if (isAuthenticated && location.pathname === "/login") {
+      navigate({ to: "/" });
+    }
+  }, [isAuthenticated, location.pathname, navigate]);
+
+  // Public routes (login) render without the dashboard shell
+  if (isPublic) {
+    return <RootOutlet />;
+  }
+
+  // All other routes require auth and render inside the dashboard
+  return (
+    <ProtectedRoute>
+      <DashboardLayout />
+    </ProtectedRoute>
+  );
+}
+
+// We need the Outlet from tanstack router
+import { Outlet } from "@tanstack/react-router";
+
+function RootOutlet() {
+  return <Outlet />;
+}
+
 export const Route = createRootRoute({
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
 });
-
-function RootComponent() {
-  return <DashboardLayout />;
-}

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { KPICard } from "@/components/dashboard/KPICard";
-import { useChartHeight, ChartCard, useSimulatedLoading } from "@/components/dashboard/ChartCard";
+import { useChartHeight, ChartCard, useSimulatedLoading, KPICardSkeleton } from "@/components/dashboard/ChartCard";
 import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
 import { DataTable } from "@/components/dashboard/DataTable";
 import { FileText, Receipt, AlertCircle, CheckCircle } from "lucide-react";
@@ -100,36 +100,26 @@ function FiscalitePage() {
     <div className="space-y-6">
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KPICard
-          label="Écritures comptables"
-          value="663 138"
-          subtitle="32 journaux — 5 exercices"
-          icon={FileText}
-        />
-        <KPICard
-          label="TVA collectée YTD"
-          value="1.8 MDT"
-          subtitle="vs 0.4 MDT déductible"
-          icon={Receipt}
-        />
-        <KPICard
-          label="Anomalies détectées"
-          value={String(nbAnomalies)}
-          subtitle="Isolation Forest — mois"
-          trend={-2}
-          icon={AlertCircle}
-        />
-        <KPICard
-          label="Équilibre débit/crédit"
-          value="98.4%"
-          subtitle="écarts < 0.01 DT"
-          icon={CheckCircle}
-        />
-      </div>
+    {kpiLoading ? (
+      <>
+        <KPICardSkeleton />
+        <KPICardSkeleton />
+        <KPICardSkeleton />
+        <KPICardSkeleton />
+      </>
+    ) : (
+      <>
+        <KPICard label="Écritures comptables" value="663 138" subtitle="32 journaux — 5 exercices" icon={FileText} />
+        <KPICard label="TVA collectée YTD" value="1.8 MDT" subtitle="vs 0.4 MDT déductible" icon={Receipt} />
+        <KPICard label="Anomalies détectées" value={String(nbAnomalies)} subtitle="Isolation Forest — mois" trend={-2} icon={AlertCircle} />
+        <KPICard label="Équilibre débit/crédit" value="98.4%" subtitle="écarts < 0.01 DT" icon={CheckCircle} />
+      </>
+    )}
+  </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Widget A: Grouped bar Débit vs Crédit top 10 journaux (KPI-25/27) */}
-        <ChartCard title="Soldes par journal — Débit vs Crédit (KPI-25/27)">
+        <ChartCard loading={chartsLoading} skeleton="bar" title="Soldes par journal — Débit vs Crédit (KPI-25/27)">
           <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={journalData}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
@@ -155,7 +145,7 @@ function FiscalitePage() {
         </ChartCard>
 
         {/* Widget B: TVA collectée vs déductible (KPI-26) */}
-        <ChartCard title="TVA collectée vs déductible (KPI-26)">
+        <ChartCard loading={chartsLoading} skeleton="bar" title="TVA collectée vs déductible (KPI-26)">
           <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={tvaData}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
@@ -206,7 +196,7 @@ function FiscalitePage() {
         </ChartCard>
 
         {/* Widget C: Anomaly scatter (KPI-28) */}
-        <ChartCard title="Détection anomalies comptables — Isolation Forest (KPI-28)">
+        <ChartCard loading={chartsLoading} skeleton="scatter" title="Détection anomalies comptables — Isolation Forest (KPI-28)">
           <ResponsiveContainer width="100%" height={chartH}>
             <ScatterChart margin={{ top: 10, right: 10, bottom: 20, left: 10 }}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
@@ -253,7 +243,7 @@ function FiscalitePage() {
         </ChartCard>
 
         {/* Widget D: Waterfall mensuel débit/crédit (KPI-25) */}
-        <ChartCard title="Équilibre comptable mensuel — Waterfall (KPI-25)">
+        <ChartCard loading={chartsLoading} skeleton="bar" title="Équilibre comptable mensuel — Waterfall (KPI-25)">
           <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={waterfallData}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />

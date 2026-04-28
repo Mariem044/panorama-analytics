@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useChartHeight, ChartCard, useSimulatedLoading } from "@/components/dashboard/ChartCard";
+import { useChartHeight, ChartCard, useSimulatedLoading, KPICardSkeleton } from "@/components/dashboard/ChartCard";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { CustomTooltip } from "@/components/dashboard/CustomTooltip";
 import { Banknote, Wallet, TrendingUp, Activity } from "lucide-react";
@@ -130,35 +130,25 @@ function CaissePage() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KPICard
-          label="Solde espèces total"
-          value={`${(totalEspeces / 1000).toFixed(0)} K DT`}
-          subtitle={depot !== "Tous" ? depot : "toutes caisses"}
-          icon={Banknote}
-        />
-        <KPICard
-          label="Solde chèques"
-          value={`${(totalCheques / 1000).toFixed(0)} K DT`}
-          subtitle={`${filteredCaisses.length} caisse(s) filtrée(s)`}
-          icon={Wallet}
-        />
-        <KPICard
-          label="Flux net journalier"
-          value={`${netJournalier > 0 ? "+" : ""}${(netJournalier / 1000).toFixed(0)} K DT`}
-          subtitle="Crédit - Débit (hier)"
-          trend={netJournalier > 0 ? 5.2 : -3.1}
-          icon={TrendingUp}
-        />
-        <KPICard
-          label="Prévision solde J+15"
-          value={`${(previsionJ15 / 1000).toFixed(0)} K DT`}
-          subtitle="Modèle Prophet (80% conf.)"
-          icon={Activity}
-        />
-      </div>
+  {kpiLoading ? (
+    <>
+      <KPICardSkeleton />
+      <KPICardSkeleton />
+      <KPICardSkeleton />
+      <KPICardSkeleton />
+    </>
+  ) : (
+    <>
+      <KPICard label="Solde espèces total" value={`${(totalEspeces / 1000).toFixed(0)} K DT`} subtitle={depot !== "Tous" ? depot : "toutes caisses"} icon={Banknote} />
+      <KPICard label="Solde chèques" value={`${(totalCheques / 1000).toFixed(0)} K DT`} subtitle={`${filteredCaisses.length} caisse(s) filtrée(s)`} icon={Wallet} />
+      <KPICard label="Flux net journalier" value={`${netJournalier > 0 ? "+" : ""}${(netJournalier / 1000).toFixed(0)} K DT`} subtitle="Crédit - Débit (hier)" trend={netJournalier > 0 ? 5.2 : -3.1} icon={TrendingUp} />
+      <KPICard label="Prévision solde J+15" value={`${(previsionJ15 / 1000).toFixed(0)} K DT`} subtitle="Modèle Prophet (80% conf.)" icon={Activity} />
+    </>
+  )}
+</div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <ChartCard key={`${depot}-${activeIdx.join("")}`} title={`Solde de caisse${depot !== "Tous" ? ` — ${depot}` : " par caisse"} — Espèces vs Chèques (KPI-29)`}>
+        <ChartCard loading={chartsLoading} skeleton="bar" key={`${depot}-${activeIdx.join("")}`} title={`Solde de caisse${depot !== "Tous" ? ` — ${depot}` : " par caisse"} — Espèces vs Chèques (KPI-29)`}>
           {filteredCaisses.length > 0 ? (
             <>
               <MultiGauge caisses={filteredCaisses} />
@@ -175,7 +165,7 @@ function CaissePage() {
           )}
         </ChartCard>
 
-        <ChartCard title="Flux journaliers débit / crédit (KPI-30/31)">
+        <ChartCard loading={chartsLoading} skeleton="bar" title="Flux journaliers débit / crédit (KPI-30/31)">
           <ResponsiveContainer width="100%" height={chartH}>
             <BarChart data={filteredFlux}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
@@ -192,7 +182,7 @@ function CaissePage() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Mouvements par nature (KPI-31)">
+        <ChartCard loading={chartsLoading} skeleton="pie" title="Mouvements par nature (KPI-31)">
           <div className="grid grid-cols-2 gap-2 h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -232,7 +222,7 @@ function CaissePage() {
           </div>
         </ChartCard>
 
-        <ChartCard title="Prévision solde caisse — Prophet 30j (KPI-32)">
+        <ChartCard loading={chartsLoading} skeleton="line" title="Prévision solde caisse — Prophet 30j (KPI-32)">
           <ResponsiveContainer width="100%" height={chartH}>
             <LineChart data={prophetData.filter((_, i) => i % 2 === 0)}>
               <CartesianGrid stroke="#2a2a2a" strokeDasharray="3 3" />
